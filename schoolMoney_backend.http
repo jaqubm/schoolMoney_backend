@@ -1,0 +1,6 @@
+@schoolMoney_backend_HostAddress = http://localhost:5184
+
+# GET {{schoolMoney_backend_HostAddress}}/weatherforecast/
+# Accept: application/json
+
+###
