@@ -57,7 +57,6 @@ CREATE TABLE schoolMoney.Transactions (
     Amount DECIMAL(18, 2) NOT NULL,
     Date DATETIME NOT NULL DEFAULT GETDATE(),
     Status NVARCHAR(50) NOT NULL,
-    VirtualAccountNumber NVARCHAR(20) NOT NULL,
     FOREIGN KEY (FundraiserId) REFERENCES schoolMoney.Fundraisers(FundraiserId),
     FOREIGN KEY (UserId) REFERENCES schoolMoney.Users(UserId)
 );
