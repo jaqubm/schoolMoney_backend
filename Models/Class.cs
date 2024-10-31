@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace schoolMoney_backend.Models;
 
-public class Class(string name, string schoolName, User treasurer)
+public class Class(string name, string schoolName, string treasurerId)
 {
     [Key]
     [MaxLength(50)]
@@ -20,8 +20,8 @@ public class Class(string name, string schoolName, User treasurer)
     [Required]
     [MaxLength(50)]
     [ForeignKey("User")]
-    public string TreasurerId { get; set; } = treasurer.UserId;
-    public virtual User Treasurer { get; set; } = treasurer;
+    public string TreasurerId { get; set; } = treasurerId;
+    public virtual User? Treasurer { get; set; }
 
     public virtual ICollection<Child>? Children { get; set; } = [];
     public virtual ICollection<Fundraiser>? Fundraisers { get; set; } = [];

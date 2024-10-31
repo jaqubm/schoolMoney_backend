@@ -5,12 +5,12 @@ namespace schoolMoney_backend.Data;
 
 public class DataContext(IConfiguration config) : DbContext
 {
-    public virtual DbSet<User> Users { get; set; }
-    public virtual DbSet<Account> Accounts { get; set; }
-    public virtual DbSet<Class> Classes { get; set; }
-    public virtual DbSet<Child> Children { get; set; }
-    public virtual DbSet<Fundraiser> Fundraisers { get; set; }
-    public virtual DbSet<Transaction> Transactions { get; set; }
+    public virtual DbSet<User> User { get; set; }
+    public virtual DbSet<Account> Account { get; set; }
+    public virtual DbSet<Class> Class { get; set; }
+    public virtual DbSet<Child> Child { get; set; }
+    public virtual DbSet<Fundraiser> Fundraiser { get; set; }
+    public virtual DbSet<Transaction> Transaction { get; set; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -28,7 +28,7 @@ public class DataContext(IConfiguration config) : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("calorieCounter");
+        modelBuilder.HasDefaultSchema("schoolMoney");
         
         // User and Account (One-to-One)
             modelBuilder.Entity<User>()

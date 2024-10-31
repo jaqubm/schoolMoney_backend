@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace schoolMoney_backend.Models;
 
-public class Child(string name, User parent)
+public class Child(string name, string parentId)
 {
     [Key]
     [MaxLength(50)]
@@ -16,8 +16,8 @@ public class Child(string name, User parent)
     [Required]
     [MaxLength(50)]
     [ForeignKey("User")]
-    public string ParentId { get; set; } = parent.UserId;
-    public virtual User Parent { get; set; } = parent;
+    public string ParentId { get; set; } = parentId;
+    public virtual User? Parent { get; set; }
 
     [MaxLength(50)]
     [ForeignKey("Class")]

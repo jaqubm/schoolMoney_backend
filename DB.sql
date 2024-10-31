@@ -10,7 +10,8 @@ CREATE TABLE schoolMoney.[Account] (
 CREATE TABLE schoolMoney.[User] (
     UserId NVARCHAR(50) PRIMARY KEY,
     Email NVARCHAR(255) NOT NULL UNIQUE,
-    PasswordHash NVARCHAR(255) NOT NULL,
+    PasswordHash VARBINARY(MAX) NOT NULL,
+    PasswordSalt VARBINARY(MAX) NOT NULL,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
     AccountNumber NVARCHAR(50),  -- FK to Accounts
     FOREIGN KEY (AccountNumber) REFERENCES schoolMoney.[Account](AccountNumber)

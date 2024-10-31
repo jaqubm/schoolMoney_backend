@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace schoolMoney_backend.Models;
 
-public class Fundraiser(string title, string description, decimal goalAmount, DateTime startDate, DateTime endDate, Class cClass, Account account)
+public class Fundraiser(string title, string description, decimal goalAmount, DateTime startDate, DateTime endDate)
 {
     [Key]
     [MaxLength(50)]
@@ -28,14 +28,14 @@ public class Fundraiser(string title, string description, decimal goalAmount, Da
     [Required]
     [MaxLength(50)]
     [ForeignKey("Class")]
-    public string ClassId { get; set; } = cClass.ClassId;
-    public virtual Class Class { get; set; } = cClass;
+    public string? ClassId { get; set; }
+    public virtual Class? Class { get; set; }
 
     [Required]
     [MaxLength(50)]
     [ForeignKey("Account")]
-    public string AccountNumber { get; set; } = account.AccountNumber;
-    public virtual Account Account { get; set; } = account;
+    public string? AccountNumber { get; set; }
+    public virtual Account? Account { get; set; }
 
     public virtual ICollection<Transaction>? Transactions { get; set; } = [];
 }

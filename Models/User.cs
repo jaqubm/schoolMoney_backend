@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace schoolMoney_backend.Models;
 
-public class User(string email, string passwordHash, Account account)
+public class User(string email, byte[] passwordHash, byte[] passwordSalt)
 {
     [Key]
     [MaxLength(50)]
@@ -14,8 +14,10 @@ public class User(string email, string passwordHash, Account account)
     public string Email { get; set; } = email;
     
     [Required]
-    [MaxLength(255)]
-    public string PasswordHash { get; set; } = passwordHash;
+    public byte[] PasswordHash { get; set; } = passwordHash;
+    
+    [Required]
+    public byte[] PasswordSalt { get; set; } = passwordSalt;
     
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -23,8 +25,8 @@ public class User(string email, string passwordHash, Account account)
     [Required]
     [MaxLength(50)]
     [ForeignKey("Account")]
-    public string AccountNumber { get; set; } = account.AccountNumber;
-    public virtual Account Account { get; set; } = account;
+    public string? AccountNumber { get; set; }
+    public virtual Account? Account { get; set; }
 
     public virtual ICollection<Child>? Children { get; set; } = [];
     public virtual ICollection<Transaction>? Transactions { get; set; } = [];

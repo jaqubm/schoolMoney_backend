@@ -1,5 +1,5 @@
-using schoolMoney_backend.Data;
 using Microsoft.AspNetCore.Mvc;
+using schoolMoney_backend.Data;
 
 namespace schoolMoney_backend.Controllers;
 
@@ -8,7 +8,7 @@ namespace schoolMoney_backend.Controllers;
 public class ApiController(IConfiguration config) : ControllerBase
 {
     private readonly DataContext _entityFramework = new(config);
-
+    
     [HttpGet("Status")]
     public async Task<ActionResult<Dictionary<string, string>>> GetStatus()
     {
