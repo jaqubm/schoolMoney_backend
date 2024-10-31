@@ -8,6 +8,8 @@ on:
 
 jobs:
   build:
+    name: Build
+    
     runs-on: windows-latest
 
     steps:
@@ -23,6 +25,18 @@ jobs:
           $fileContent = Get-Content -Path "./appsettings.json"
           $fileContent = $fileContent -replace '"AzureSQL": "KEY"', '"AzureSQL": "${{ secrets.AZURE_SQL_CONNECTION_STRING }}"'
           Set-Content -Path "./appsettings.json" -Value $fileContent   
+          
+      - name: Inject PasswordKey into appsettings.json
+        run: |
+          $fileContent = Get-Content -Path "./appsettings.json"
+          $fileContent = $fileContent -replace '"PasswordKey": "KEY"', '"AzureSQL": "${{ secrets.PASSWORD_KEY }}"'
+          Set-Content -Path "./appsettings.json" -Value $fileContent   
+          
+      - name: Inject TokenKey into appsettings.json
+        run: |
+          $fileContent = Get-Content -Path "./appsettings.json"
+          $fileContent = $fileContent -replace '"TokenKey": "KEY"', '"AzureSQL": "${{ secrets.TOKEN_KEY }}"'
+          Set-Content -Path "./appsettings.json" -Value $fileContent   
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
@@ -37,6 +51,8 @@ jobs:
           path: "${{env.DOTNET_ROOT}}/schoolMoney_backend"
 
   deploy:
+    name: Deploy
+    
     runs-on: windows-latest
     needs: build
     environment:
