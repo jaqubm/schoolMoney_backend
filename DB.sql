@@ -1,42 +1,42 @@
 CREATE SCHEMA schoolMoney;
 
 -- Accounts table
-CREATE TABLE schoolMoney.Accounts (
+CREATE TABLE schoolMoney.[Account] (
     AccountNumber NVARCHAR(50) PRIMARY KEY,
     Balance DECIMAL(18, 2) NOT NULL DEFAULT 0.0
 );
 
 -- Users table
-CREATE TABLE schoolMoney.Users (
+CREATE TABLE schoolMoney.[User] (
     UserId NVARCHAR(50) PRIMARY KEY,
     Email NVARCHAR(255) NOT NULL UNIQUE,
     PasswordHash NVARCHAR(255) NOT NULL,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
     AccountNumber NVARCHAR(50),  -- FK to Accounts
-    FOREIGN KEY (AccountNumber) REFERENCES schoolMoney.Accounts(AccountNumber)
+    FOREIGN KEY (AccountNumber) REFERENCES schoolMoney.[Account](AccountNumber)
 );
 
 -- Classes table
-CREATE TABLE schoolMoney.Classes (
+CREATE TABLE schoolMoney.[Class] (
     ClassId NVARCHAR(50) PRIMARY KEY,
     Name NVARCHAR(100) NOT NULL,
     SchoolName NVARCHAR(255) NOT NULL,
     TreasurerId NVARCHAR(50) NOT NULL,
-    FOREIGN KEY (TreasurerId) REFERENCES schoolMoney.Users(UserId)
+    FOREIGN KEY (TreasurerId) REFERENCES schoolMoney.[User](UserId)
 );
 
 -- Children table
-CREATE TABLE schoolMoney.Children (
+CREATE TABLE schoolMoney.[Child] (
     ChildId NVARCHAR(50) PRIMARY KEY,
     Name NVARCHAR(100) NOT NULL,
     ParentId NVARCHAR(50) NOT NULL,
     ClassId NVARCHAR(50) NOT NULL,
-    FOREIGN KEY (ParentId) REFERENCES schoolMoney.Users(UserId),
-    FOREIGN KEY (ClassId) REFERENCES schoolMoney.Classes(ClassId)
+    FOREIGN KEY (ParentId) REFERENCES schoolMoney.[User](UserId),
+    FOREIGN KEY (ClassId) REFERENCES schoolMoney.[Class](ClassId)
 );
 
 -- Fundraisers table
-CREATE TABLE schoolMoney.Fundraisers (
+CREATE TABLE schoolMoney.[Fundraiser] (
     FundraiserId NVARCHAR(50) PRIMARY KEY,
     Title NVARCHAR(255) NOT NULL,
     Description NVARCHAR(MAX),
@@ -45,26 +45,26 @@ CREATE TABLE schoolMoney.Fundraisers (
     EndDate DATE NOT NULL,
     ClassId NVARCHAR(50) NOT NULL,
     AccountNumber NVARCHAR(50),  -- FK to Accounts
-    FOREIGN KEY (ClassId) REFERENCES schoolMoney.Classes(ClassId),
-    FOREIGN KEY (AccountNumber) REFERENCES schoolMoney.Accounts(AccountNumber)
+    FOREIGN KEY (ClassId) REFERENCES schoolMoney.[Class](ClassId),
+    FOREIGN KEY (AccountNumber) REFERENCES schoolMoney.[Account](AccountNumber)
 );
 
 -- Transactions table
-CREATE TABLE schoolMoney.Transactions (
+CREATE TABLE schoolMoney.[Transaction] (
     TransactionId NVARCHAR(50) PRIMARY KEY,
     FundraiserId NVARCHAR(50) NOT NULL,
     UserId NVARCHAR(50) NOT NULL,
     Amount DECIMAL(18, 2) NOT NULL,
     Date DATETIME NOT NULL DEFAULT GETDATE(),
     Status NVARCHAR(50) NOT NULL,
-    FOREIGN KEY (FundraiserId) REFERENCES schoolMoney.Fundraisers(FundraiserId),
-    FOREIGN KEY (UserId) REFERENCES schoolMoney.Users(UserId)
+    FOREIGN KEY (FundraiserId) REFERENCES schoolMoney.[Fundraiser](FundraiserId),
+    FOREIGN KEY (UserId) REFERENCES schoolMoney.[User](UserId)
 );
 
 
-DROP TABLE schoolMoney.[Transactions];
-DROP TABLE schoolMoney.[Fundraisers];
-DROP TABLE schoolMoney.[Children];
-DROP TABLE schoolMoney.[Classes];
-DROP TABLE schoolMoney.[Users];
-DROP TABLE schoolMoney.[Accounts];
+DROP TABLE schoolMoney.[Transaction];
+DROP TABLE schoolMoney.[Fundraiser];
+DROP TABLE schoolMoney.[Child];
+DROP TABLE schoolMoney.[Class];
+DROP TABLE schoolMoney.[User];
+DROP TABLE schoolMoney.[Account];
