@@ -14,4 +14,7 @@ public class Account
     
     [Required]
     public decimal Balance { get; set; }
+
+    public virtual ICollection<User>? Users { get; set; } = [];
+    public virtual ICollection<Fundraiser>? Fundraisers { get; set; } = [];
 }
