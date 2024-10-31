@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using schoolMoney_backend.Data;
 using schoolMoney_backend.Models;
 
@@ -24,6 +25,7 @@ public class UserRepository(IConfiguration config) : IUserRepository
     {
         var authUser = _entityFramework
             .User
+            .Include(u => u.Children)
             .FirstOrDefault(a => a.Email == email);
 
         if (authUser is null) throw new Exception("Failed to Get User");

@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using schoolMoney_backend.Dtos;
@@ -14,6 +15,11 @@ namespace schoolMoney_backend.Controllers;
 public class UserController(IConfiguration config, IUserRepository userRepository) : ControllerBase
 {
     private readonly AuthHelper _authHelper = new (config);
+    
+    private readonly Mapper _mapper = new(new MapperConfiguration(c =>
+    {
+        c.CreateMap<User, UserDto>();
+    }));
 
     [AllowAnonymous]
     [HttpPost("Register")]
@@ -59,6 +65,14 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
 
         var userId = userRepository.GetUserId(userForLogin.Email);
         
-        return Ok(new Dictionary<string, string> { { "access_token", _authHelper.CreateToken(userId, authUser.Email) } });
+        return Ok(new Dictionary<string, string> { { "Token", _authHelper.CreateToken(userId, authUser.Email) } });
+    }
+    
+    [HttpGet("Get/{email}")]
+    public ActionResult<UserDto> GetUser([FromRoute] string email)
+    {
+        var user = userRepository.GetUser(email);
+        
+        return Ok(_mapper.Map<UserDto>(user));
     }
 }
