@@ -25,18 +25,18 @@ jobs:
           $fileContent = Get-Content -Path "./appsettings.json"
           $fileContent = $fileContent -replace '"AzureSQL": "KEY"', '"AzureSQL": "${{ secrets.AZURE_SQL_CONNECTION_STRING }}"'
           Set-Content -Path "./appsettings.json" -Value $fileContent   
-          
+
       - name: Inject PasswordKey into appsettings.json
         run: |
           $fileContent = Get-Content -Path "./appsettings.json"
-          $fileContent = $fileContent -replace '"PasswordKey": "KEY"', '"AzureSQL": "${{ secrets.PASSWORD_KEY }}"'
+          $fileContent = $fileContent -replace '"PasswordKey": "KEY"', '"PasswordKey": "${{ secrets.PASSWORD_KEY }}"'
           Set-Content -Path "./appsettings.json" -Value $fileContent   
-          
+
       - name: Inject TokenKey into appsettings.json
         run: |
           $fileContent = Get-Content -Path "./appsettings.json"
-          $fileContent = $fileContent -replace '"TokenKey": "KEY"', '"AzureSQL": "${{ secrets.TOKEN_KEY }}"'
-          Set-Content -Path "./appsettings.json" -Value $fileContent   
+          $fileContent = $fileContent -replace '"TokenKey": "KEY"', '"TokenKey": "${{ secrets.TOKEN_KEY }}"'
+          Set-Content -Path "./appsettings.json" -Value $fileContent 
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
