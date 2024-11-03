@@ -14,11 +14,11 @@ public class UserRepository(IConfiguration config) : IUserRepository
             .SaveChanges() > 0;
     }
 
-    public void AddEntity<T>(T entityToAdd)
+    public void DeleteEntity<T>(T entityToDelete)
     {
-        if (entityToAdd is not null)
+        if (entityToDelete is not null)
             _entityFramework
-                .Add(entityToAdd);
+                .Remove(entityToDelete);
     }
 
     public User GetUser(string email)
@@ -31,30 +31,5 @@ public class UserRepository(IConfiguration config) : IUserRepository
         if (authUser is null) throw new Exception("Failed to Get User");
 
         return authUser;
-    }
-
-    public string GetUserId(string email)
-    {
-        var userDb = _entityFramework
-            .User
-            .FirstOrDefault(u => u.Email == email);
-
-        if (userDb is null) throw new Exception("Failed to Get User");
-    
-        return userDb.UserId;
-    }
-
-    public bool CheckUserExist(string email)
-    {
-        return _entityFramework
-            .User
-            .FirstOrDefault(a => a.Email == email) is not null;
-    }
-
-    public bool CheckUserIdExist(string userId)
-    {
-        return _entityFramework
-            .User
-            .FirstOrDefault(u => u.UserId == userId) is not null;
     }
 }

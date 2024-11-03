@@ -65,6 +65,7 @@ builder.Services.AddCors(options =>
 });
 
 // Adding scoped connection between Repositories Interfaces and Repositories Classes
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 //Setting up Authentication - JwtBearer
