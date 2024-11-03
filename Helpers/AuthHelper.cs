@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.IdentityModel.Tokens;
 
@@ -50,5 +52,39 @@ public class AuthHelper(IConfiguration config)
         var token = tokenHandler.CreateToken(descriptor);
 
         return tokenHandler.WriteToken(token);
+    }
+    
+    public async Task<string?> GetEmailFromToken(HttpContext httpContext)
+    {
+        var accessToken = await httpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
+        
+        if (string.IsNullOrEmpty(accessToken)) return null;
+        
+        var tokenHandler = new JwtSecurityTokenHandler();
+        
+        var tokenKey = Encoding.UTF8.GetBytes(config.GetSection("AppSettings:TokenKey").Value ?? "");
+        var validationParameters = new TokenValidationParameters
+        {
+            IssuerSigningKey = new SymmetricSecurityKey(tokenKey),
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(accessToken, validationParameters, out _);
+            
+            var emailClaim = principal
+                .Claims
+                .FirstOrDefault(claim => claim.Type is JwtRegisteredClaimNames.Email or ClaimTypes.Email);
+
+            return emailClaim?.Value;
+        }
+        catch (SecurityTokenException)
+        {
+            return null;
+        }
     }
 }

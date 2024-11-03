@@ -6,6 +6,6 @@ public class UserDto
 {
     public string Email { get; set; }
     public DateTime CreatedAt { get; set; }
-    public Account account { get; set; }
+    public Account Account { get; set; }
     public ICollection<Child>? Children { get; set; }
 }
