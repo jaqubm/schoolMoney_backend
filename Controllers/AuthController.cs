@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using schoolMoney_backend.Dtos;
@@ -12,7 +11,7 @@ namespace schoolMoney_backend.Controllers;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class AuthController(IConfiguration config, IUserRepository userRepository) : ControllerBase
+public class AuthController(IConfiguration config, IAuthRepository authRepository) : ControllerBase
 {
     private readonly AuthHelper _authHelper = new (config);
 
@@ -23,7 +22,7 @@ public class AuthController(IConfiguration config, IUserRepository userRepositor
         if (userForRegistration.Password != userForRegistration.PasswordConfirm)
             return BadRequest("Passwords do not match!");
         
-        if (userRepository.CheckUserExist(userForRegistration.Email))
+        if (authRepository.CheckUserExist(userForRegistration.Email))
             return BadRequest("User with this email already exists!");
         
         var passwordSalt = new byte[128 / 8];
@@ -35,7 +34,7 @@ public class AuthController(IConfiguration config, IUserRepository userRepositor
 
         var userAccount = new Account();
         
-        userRepository.AddEntity(new User(
+        authRepository.AddEntity(new User(
             userForRegistration.Email,
             passwordHash,
             passwordSalt)
@@ -44,21 +43,21 @@ public class AuthController(IConfiguration config, IUserRepository userRepositor
             }
         );
         
-        return userRepository.SaveChanges() ? Ok() : Problem("Failed to Register User");
+        return authRepository.SaveChanges() ? Ok() : Problem("Failed to Register User");
     }
     
     [AllowAnonymous]
     [HttpPost("Login")]
     public IActionResult Login(UserForLoginDto userForLogin)
     {
-        var authUser = userRepository.GetUser(userForLogin.Email);
+        var authUser = authRepository.GetUser(userForLogin.Email);
 
         var passwordHash = _authHelper.GetPasswordHash(userForLogin.Password, authUser.PasswordSalt);
 
         if (passwordHash.Where((t, i) => t != authUser.PasswordHash[i]).Any())
             return StatusCode(401, "Incorrect password!");
 
-        var userId = userRepository.GetUserId(userForLogin.Email);
+        var userId = authRepository.GetUserId(userForLogin.Email);
         
         return Ok(new Dictionary<string, string> { { "Token", _authHelper.CreateToken(userId, authUser.Email) } });
     }

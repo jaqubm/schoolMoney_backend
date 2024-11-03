@@ -1,10 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using schoolMoney_backend.Data;
 using schoolMoney_backend.Models;
 
 namespace schoolMoney_backend.Repositories;
 
-public class AuthRepository(IConfiguration config) : IUserRepository
+public class AuthRepository(IConfiguration config) : IAuthRepository
 {
     private readonly DataContext _entityFramework = new(config);
     
@@ -48,12 +47,5 @@ public class AuthRepository(IConfiguration config) : IUserRepository
         return _entityFramework
             .User
             .FirstOrDefault(a => a.Email == email) is not null;
-    }
-
-    public bool CheckUserIdExist(string userId)
-    {
-        return _entityFramework
-            .User
-            .FirstOrDefault(u => u.UserId == userId) is not null;
     }
 }

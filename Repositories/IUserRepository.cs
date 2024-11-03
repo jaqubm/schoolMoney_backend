@@ -6,11 +6,7 @@ public interface IUserRepository
 {
     public bool SaveChanges();
 
-    public void AddEntity<T>(T entityToAdd);
+    public void DeleteEntity<T>(T entityToDelete);
 
     public User GetUser(string email);
-    public string GetUserId(string email);
-    
-    public bool CheckUserExist(string email);
-    public bool CheckUserIdExist(string userId);
 }

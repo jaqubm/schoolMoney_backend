@@ -12,5 +12,4 @@ public interface IAuthRepository
     public string GetUserId(string email);
     
     public bool CheckUserExist(string email);
-    public bool CheckUserIdExist(string userId);
 }
