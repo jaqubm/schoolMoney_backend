@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace schoolMoney_backend.Models;
 
-public class User(string email, byte[] passwordHash, byte[] passwordSalt)
+public class User(string email, string name, string surname, byte[] passwordHash, byte[] passwordSalt)
 {
     [Key]
     [MaxLength(50)]
@@ -12,6 +12,14 @@ public class User(string email, byte[] passwordHash, byte[] passwordSalt)
     [Required] 
     [MaxLength(255)] 
     public string Email { get; set; } = email;
+
+    [Required] 
+    [MaxLength(100)] 
+    public string Name { get; set; } = name;
+
+    [Required] 
+    [MaxLength(100)] 
+    public string Surname { get; set; } = surname;
     
     [Required]
     public byte[] PasswordHash { get; set; } = passwordHash;
