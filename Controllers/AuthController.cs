@@ -36,6 +36,8 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
         
         authRepository.AddEntity(new User(
             userForRegistration.Email,
+            userForRegistration.Name,
+            userForRegistration.Surname,
             passwordHash,
             passwordSalt)
             {
