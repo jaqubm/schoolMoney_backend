@@ -54,7 +54,7 @@ public class AuthHelper(IConfiguration config)
         return tokenHandler.WriteToken(token);
     }
     
-    public async Task<string?> GetEmailFromToken(HttpContext httpContext)
+    public async Task<string?> GetUserIdFromToken(HttpContext httpContext)
     {
         var accessToken = await httpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
         
@@ -76,11 +76,11 @@ public class AuthHelper(IConfiguration config)
         {
             var principal = tokenHandler.ValidateToken(accessToken, validationParameters, out _);
             
-            var emailClaim = principal
+            var subClaim = principal
                 .Claims
-                .FirstOrDefault(claim => claim.Type is JwtRegisteredClaimNames.Email or ClaimTypes.Email);
+                .FirstOrDefault(claim => claim.Type is JwtRegisteredClaimNames.Sub or ClaimTypes.NameIdentifier);
 
-            return emailClaim?.Value;
+            return subClaim?.Value;
         }
         catch (SecurityTokenException)
         {

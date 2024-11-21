@@ -4,9 +4,9 @@ namespace schoolMoney_backend.Repositories;
 
 public interface IUserRepository
 {
-    public bool SaveChanges();
+    public Task<bool> SaveChangesAsync();
 
     public void DeleteEntity<T>(T entityToDelete);
 
-    public User GetUser(string email);
+    public Task<User?> GetUserByIdAsync(string userId);
 }

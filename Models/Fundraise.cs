@@ -3,11 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace schoolMoney_backend.Models;
 
-public class Fundraiser(string title, string description, decimal goalAmount, DateTime startDate, DateTime endDate)
+public class Fundraise(string title, string description, decimal goalAmount, DateTime startDate, DateTime endDate)
 {
     [Key]
     [MaxLength(50)]
-    public string FundraiserId { get; set; } = Guid.NewGuid().ToString();
+    public string FundraiseId { get; set; } = Guid.NewGuid().ToString();
     
     [Required]
     [MaxLength(255)]

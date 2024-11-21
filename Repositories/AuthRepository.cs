@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using schoolMoney_backend.Data;
 using schoolMoney_backend.Models;
 
@@ -7,45 +8,30 @@ public class AuthRepository(IConfiguration config) : IAuthRepository
 {
     private readonly DataContext _entityFramework = new(config);
     
-    public bool SaveChanges()
+    public async Task<bool> SaveChangesAsync()
     {
-        return _entityFramework
-            .SaveChanges() > 0;
+        return await _entityFramework
+            .SaveChangesAsync() > 0;
     }
 
-    public void AddEntity<T>(T entityToAdd)
+    public async Task AddEntityAsync<T>(T entityToAdd)
     {
         if (entityToAdd is not null)
-            _entityFramework
-                .Add(entityToAdd);
+            await _entityFramework
+                .AddAsync(entityToAdd);
     }
 
-    public User GetUser(string email)
+    public async Task<User?> GetUserByEmailAsync(string email)
     {
-        var authUser = _entityFramework
+        return await _entityFramework
             .User
-            .FirstOrDefault(a => a.Email == email);
-
-        if (authUser is null) throw new Exception("Failed to Get User");
-
-        return authUser;
+            .FirstOrDefaultAsync(a => a.Email == email);
     }
 
-    public string GetUserId(string email)
+    public async Task<bool> CheckUserExistAsync(string email)
     {
-        var userDb = _entityFramework
+        return await _entityFramework
             .User
-            .FirstOrDefault(u => u.Email == email);
-
-        if (userDb is null) throw new Exception("Failed to Get User");
-    
-        return userDb.UserId;
-    }
-
-    public bool CheckUserExist(string email)
-    {
-        return _entityFramework
-            .User
-            .FirstOrDefault(a => a.Email == email) is not null;
+            .FirstOrDefaultAsync(a => a.Email == email) is not null;
     }
 }

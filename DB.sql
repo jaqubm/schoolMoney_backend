@@ -39,8 +39,8 @@ CREATE TABLE schoolMoney.[Child] (
 );
 
 -- Fundraisers table
-CREATE TABLE schoolMoney.[Fundraiser] (
-    FundraiserId NVARCHAR(50) PRIMARY KEY,
+CREATE TABLE schoolMoney.[Fundraise] (
+    FundraiseId NVARCHAR(50) PRIMARY KEY,
     Title NVARCHAR(255) NOT NULL,
     Description NVARCHAR(MAX),
     GoalAmount DECIMAL(18, 2) NOT NULL,
@@ -55,18 +55,18 @@ CREATE TABLE schoolMoney.[Fundraiser] (
 -- Transactions table
 CREATE TABLE schoolMoney.[Transaction] (
     TransactionId NVARCHAR(50) PRIMARY KEY,
-    FundraiserId NVARCHAR(50) NOT NULL,
+    FundraiseId NVARCHAR(50) NOT NULL,
     UserId NVARCHAR(50) NOT NULL,
     Amount DECIMAL(18, 2) NOT NULL,
     Date DATETIME NOT NULL DEFAULT GETDATE(),
     Status NVARCHAR(50) NOT NULL,
-    FOREIGN KEY (FundraiserId) REFERENCES schoolMoney.[Fundraiser](FundraiserId),
+    FOREIGN KEY (FundraiseId) REFERENCES schoolMoney.[Fundraise](FundraiseId),
     FOREIGN KEY (UserId) REFERENCES schoolMoney.[User](UserId)
 );
 
 
 DROP TABLE schoolMoney.[Transaction];
-DROP TABLE schoolMoney.[Fundraiser];
+DROP TABLE schoolMoney.[Fundraise];
 DROP TABLE schoolMoney.[Child];
 DROP TABLE schoolMoney.[Class];
 DROP TABLE schoolMoney.[User];

@@ -17,12 +17,12 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
 
     [AllowAnonymous]
     [HttpPost("Register")]
-    public IActionResult Register(UserForRegistrationDto userForRegistration)
+    public async Task<IActionResult> Register(UserRegisterDto userRegisterDto)
     {
-        if (userForRegistration.Password != userForRegistration.PasswordConfirm)
+        if (userRegisterDto.Password != userRegisterDto.PasswordConfirm)
             return BadRequest("Passwords do not match!");
         
-        if (authRepository.CheckUserExist(userForRegistration.Email))
+        if (await authRepository.CheckUserExistAsync(userRegisterDto.Email))
             return BadRequest("User with this email already exists!");
         
         var passwordSalt = new byte[128 / 8];
@@ -30,14 +30,14 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
         using (var randomNumberGenerator = RandomNumberGenerator.Create())
             randomNumberGenerator.GetNonZeroBytes(passwordSalt);
         
-        var passwordHash = _authHelper.GetPasswordHash(userForRegistration.Password, passwordSalt);
+        var passwordHash = _authHelper.GetPasswordHash(userRegisterDto.Password, passwordSalt);
 
         var userAccount = new Account();
         
-        authRepository.AddEntity(new User(
-            userForRegistration.Email,
-            userForRegistration.Name,
-            userForRegistration.Surname,
+        await authRepository.AddEntityAsync(new User(
+            userRegisterDto.Email,
+            userRegisterDto.Name,
+            userRegisterDto.Surname,
             passwordHash,
             passwordSalt)
             {
@@ -45,22 +45,20 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
             }
         );
         
-        return authRepository.SaveChanges() ? Ok() : Problem("Failed to Register User");
+        return await authRepository.SaveChangesAsync() ? Ok() : Problem("Failed to Register User");
     }
     
     [AllowAnonymous]
     [HttpPost("Login")]
-    public IActionResult Login(UserForLoginDto userForLogin)
+    public async Task<IActionResult> Login(UserLoginDto userLoginDto)
     {
-        var authUser = authRepository.GetUser(userForLogin.Email);
+        var userDb = await authRepository.GetUserByEmailAsync(userLoginDto.Email);
+        if (userDb is null) return NotFound("User not found!");
 
-        var passwordHash = _authHelper.GetPasswordHash(userForLogin.Password, authUser.PasswordSalt);
+        var passwordHash = _authHelper.GetPasswordHash(userLoginDto.Password, userDb.PasswordSalt);
 
-        if (passwordHash.Where((t, i) => t != authUser.PasswordHash[i]).Any())
-            return StatusCode(401, "Incorrect password!");
-
-        var userId = authRepository.GetUserId(userForLogin.Email);
-        
-        return Ok(new Dictionary<string, string> { { "Token", _authHelper.CreateToken(userId, authUser.Email) } });
+        return passwordHash.Where((t, i) => t != userDb.PasswordHash[i]).Any() 
+            ? StatusCode(401, "Incorrect password!") 
+            : Ok(new Dictionary<string, string> { { "Token", _authHelper.CreateToken(userDb.UserId, userDb.Email) } });
     }
 }

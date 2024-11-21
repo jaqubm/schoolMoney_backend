@@ -23,12 +23,12 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
     [HttpGet("Get")]
     public async Task<ActionResult<UserDto>> GetUser()
     {
-        var email = await _authHelper.GetEmailFromToken(HttpContext);
+        var userId = await _authHelper.GetUserIdFromToken(HttpContext);
+        if (userId is null) return Unauthorized("Invalid Token!");
         
-        if (email is null) return Unauthorized("Invalid Token!");
+        var userDb = await userRepository.GetUserByIdAsync(userId);
+        if (userDb is null) return NotFound("User not found!");
         
-        var user = userRepository.GetUser(email);
-        
-        return Ok(_mapper.Map<UserDto>(user));
+        return Ok(_mapper.Map<UserDto>(userDb));
     }
 }

@@ -4,12 +4,11 @@ namespace schoolMoney_backend.Repositories;
 
 public interface IAuthRepository
 {
-    public bool SaveChanges();
+    public Task<bool> SaveChangesAsync();
 
-    public void AddEntity<T>(T entityToAdd);
+    public Task AddEntityAsync<T>(T entityToAdd);
 
-    public User GetUser(string email);
-    public string GetUserId(string email);
+    public Task<User?> GetUserByEmailAsync(string email);
     
-    public bool CheckUserExist(string email);
+    public Task<bool> CheckUserExistAsync(string email);
 }
