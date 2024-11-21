@@ -24,5 +24,5 @@ public class Class(string name, string schoolName, string treasurerId)
     public virtual User? Treasurer { get; set; }
 
     public virtual ICollection<Child>? Children { get; set; } = [];
-    public virtual ICollection<Fundraiser>? Fundraisers { get; set; } = [];
+    public virtual ICollection<Fundraise>? Fundraises { get; set; } = [];
 }

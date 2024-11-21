@@ -8,10 +8,10 @@ public class UserRepository(IConfiguration config) : IUserRepository
 {
     private readonly DataContext _entityFramework = new(config);
     
-    public bool SaveChanges()
+    public async Task<bool> SaveChangesAsync()
     {
-        return _entityFramework
-            .SaveChanges() > 0;
+        return await _entityFramework
+            .SaveChangesAsync() > 0;
     }
 
     public void DeleteEntity<T>(T entityToDelete)
@@ -21,15 +21,11 @@ public class UserRepository(IConfiguration config) : IUserRepository
                 .Remove(entityToDelete);
     }
 
-    public User GetUser(string email)
+    public async Task<User?> GetUserByIdAsync(string userId)
     {
-        var authUser = _entityFramework
+        return await _entityFramework
             .User
             .Include(u => u.Children)
-            .FirstOrDefault(a => a.Email == email);
-
-        if (authUser is null) throw new Exception("Failed to Get User");
-
-        return authUser;
+            .FirstOrDefaultAsync(u => u.UserId == userId);
     }
 }

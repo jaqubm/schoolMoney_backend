@@ -9,7 +9,7 @@ public class DataContext(IConfiguration config) : DbContext
     public virtual DbSet<Account> Account { get; set; }
     public virtual DbSet<Class> Class { get; set; }
     public virtual DbSet<Child> Child { get; set; }
-    public virtual DbSet<Fundraiser> Fundraiser { get; set; }
+    public virtual DbSet<Fundraise> Fundraise { get; set; }
     public virtual DbSet<Transaction> Transaction { get; set; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -38,9 +38,9 @@ public class DataContext(IConfiguration config) : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Fundraiser and Account (One-to-One)
-            modelBuilder.Entity<Fundraiser>()
+            modelBuilder.Entity<Fundraise>()
                 .HasOne(f => f.Account)
-                .WithMany(a => a.Fundraisers)
+                .WithMany(a => a.Fundraises)
                 .HasForeignKey(f => f.AccountNumber)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -66,17 +66,17 @@ public class DataContext(IConfiguration config) : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Fundraiser and Class (One-to-Many)
-            modelBuilder.Entity<Fundraiser>()
+            modelBuilder.Entity<Fundraise>()
                 .HasOne(f => f.Class)
-                .WithMany(c => c.Fundraisers)
+                .WithMany(c => c.Fundraises)
                 .HasForeignKey(f => f.ClassId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Transaction and Fundraiser (One-to-Many)
             modelBuilder.Entity<Transaction>()
-                .HasOne(t => t.Fundraiser)
+                .HasOne(t => t.Fundraise)
                 .WithMany(f => f.Transactions)
-                .HasForeignKey(t => t.FundraiserId)
+                .HasForeignKey(t => t.FundraiseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Transaction and User (One-to-Many)

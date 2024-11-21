@@ -4,10 +4,10 @@ namespace schoolMoney_backend.Dtos;
 
 public class UserDto
 {
-    public string Email { get; set; }
-    public string Name { get; set; }
-    public string Surname { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Surname { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
-    public Account Account { get; set; }
-    public ICollection<Child>? Children { get; set; }
+    public Account Account { get; set; } = new();
+    public IEnumerable<Child>? Children { get; set; } = [];
 }

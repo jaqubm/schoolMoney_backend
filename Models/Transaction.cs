@@ -25,7 +25,7 @@ public class Transaction(decimal amount, DateTime date)
     public virtual User? User { get; set; }
 
     [MaxLength(50)]
-    [ForeignKey("Fundraiser")]
-    public string? FundraiserId { get; set; }
-    public virtual Fundraiser? Fundraiser { get; set; }
+    [ForeignKey("Fundraise")]
+    public string? FundraiseId { get; set; }
+    public virtual Fundraise? Fundraise { get; set; }
 }
