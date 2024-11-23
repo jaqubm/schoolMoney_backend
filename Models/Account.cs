@@ -5,7 +5,7 @@ namespace schoolMoney_backend.Models;
 public class Account
 {
     [Key]
-    [MaxLength(50)]
+    [MaxLength(12)]
     public string AccountNumber { get; set; } = Guid
         .NewGuid()
         .GetHashCode()
@@ -15,6 +15,8 @@ public class Account
     [Required]
     public decimal Balance { get; set; }
 
-    public virtual ICollection<User>? Users { get; set; } = [];
-    public virtual ICollection<Fundraise>? Fundraises { get; set; } = [];
+    public virtual User? User { get; set; }
+    public virtual Fundraise? Fundraise { get; set; }
+    public virtual List<Transaction>? SourceTransactions { get; set; }
+    public virtual List<Transaction>? DestinationTransactions { get; set; }
 }

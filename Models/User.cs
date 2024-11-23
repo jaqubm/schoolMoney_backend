@@ -31,7 +31,7 @@ public class User
     public DateTime CreatedAt { get; set; }
 
     [Required]
-    [MaxLength(50)]
+    [MaxLength(12)]
     [ForeignKey("Account")]
     public string? AccountNumber { get; set; }
     public virtual Account? Account { get; set; }

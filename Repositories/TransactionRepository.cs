@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using schoolMoney_backend.Data;
+using schoolMoney_backend.Models;
 
 namespace schoolMoney_backend.Repositories;
 
@@ -29,5 +31,20 @@ public class TransactionRepository(IConfiguration config) : ITransactionReposito
     {
         if (entity is not null)
             _entityFramework.Remove(entity);
+    }
+    
+    public async Task<User?> GetUserByIdAsync(string userId)
+    {
+        return await _entityFramework
+            .User
+            .Include(u => u.Account)
+            .FirstOrDefaultAsync(u => u.UserId == userId);
+    }
+
+    public async Task<Transaction?> GetTransactionByIdAsync(string transactionId)
+    {
+        return await _entityFramework
+            .Transaction
+            .FindAsync(transactionId);
     }
 }

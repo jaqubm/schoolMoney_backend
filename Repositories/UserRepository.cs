@@ -49,4 +49,13 @@ public class UserRepository(IConfiguration config) : IUserRepository
             .Include(c => c.Class)
             .FirstOrDefaultAsync(c => c.ChildId == childId);
     }
+
+    public async Task<Account?> GetAccountByAccountNumberAsync(string accountNumber)
+    {
+        return await _entityFramework
+            .Account
+            .Include(a => a.SourceTransactions)
+            .Include(a => a.DestinationTransactions)
+            .FirstOrDefaultAsync(a => a.AccountNumber == accountNumber);
+    }
 }

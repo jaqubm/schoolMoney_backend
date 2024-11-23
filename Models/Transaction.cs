@@ -24,22 +24,24 @@ public class Transaction
     public string Status { get; set; }
     
     [Required]
-    [MaxLength(50)]
-    [ForeignKey("User")]
-    public string UserId { get; set; }
-    public virtual User? User { get; set; }
+    [MaxLength(12)]
+    [ForeignKey("Account")]
+    public string SourceAccountNumber { get; set; }
+    public virtual Account? SourceAccount { get; set; }
 
-    [MaxLength(50)]
-    [ForeignKey("Fundraise")]
-    public string? FundraiseId { get; set; }
-    public virtual Fundraise? Fundraise { get; set; }
+    [Required]
+    [MaxLength(12)]
+    [ForeignKey("Account")]
+    public string DestinationAccountNumber { get; set; }
+    public virtual Account? DestinationAccount { get; set; }
 
     public Transaction()
     { 
         TransactionId = Guid.NewGuid().ToString();
         Date = DateTime.Now;
+        Status = "Completed";   // <- Status only for simulation
         Type ??= string.Empty;
-        Status = "Completed";
-        UserId ??= string.Empty;
+        SourceAccountNumber ??= string.Empty;
+        DestinationAccountNumber ??= string.Empty;
     }
 }

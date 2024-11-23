@@ -21,6 +21,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         c.CreateMap<Account, AccountDto>();
         c.CreateMap<UserUpdateDto, User>();
         c.CreateMap<Child, ChildDto>();
+        c.CreateMap<Transaction, TransactionDto>();
     }));
     
     [HttpGet("Get")]
@@ -116,5 +117,31 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         userRepository.DeleteEntity(childDb);
         
         return await userRepository.SaveChangesAsync() ? Ok() : Problem("Failed to delete child profile!");
+    }
+
+    [HttpGet("GetTransactionHistory")]
+    public async Task<ActionResult<List<TransactionDto>>> GetTransactionHistory()
+    {
+        var userId = await _authHelper.GetUserIdFromToken(HttpContext);
+        if (userId is null) return Unauthorized("Invalid Token!");
+        
+        var userDb = await userRepository.GetUserByIdAsync(userId);
+        if (userDb is null) return NotFound("User not found!");
+        if (userDb.AccountNumber is null) return BadRequest("Account number not found!");
+        
+        var accountDb = await userRepository.GetAccountByAccountNumberAsync(userDb.AccountNumber);
+        if (accountDb is null) return BadRequest("Account number not found!");
+
+        var transactionHistory = new List<TransactionDto>();
+        
+        if (accountDb.SourceTransactions is not null)
+            transactionHistory.AddRange(accountDb.SourceTransactions
+                .Select(st => _mapper.Map<TransactionDto>(st)));
+        
+        if (accountDb.DestinationTransactions is not null)
+            transactionHistory.AddRange(accountDb.DestinationTransactions
+                .Select(dt => _mapper.Map<TransactionDto>(dt)));
+        
+        return Ok(transactionHistory);
     }
 }
