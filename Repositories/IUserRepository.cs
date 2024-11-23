@@ -6,7 +6,11 @@ public interface IUserRepository
 {
     public Task<bool> SaveChangesAsync();
 
-    public void DeleteEntity<T>(T entityToDelete);
+    public Task AddEntityAsync<T>(T entity);
+    public void UpdateEntity<T>(T entity);
+    public void DeleteEntity<T>(T entity);
 
     public Task<User?> GetUserByIdAsync(string userId);
+    
+    public Task<Child?> GetChildByIdAsync(string childId);
 }
