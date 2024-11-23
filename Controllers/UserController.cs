@@ -31,4 +31,20 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         
         return Ok(_mapper.Map<UserDto>(userDb));
     }
+
+    [HttpPut("Update")]
+    public async Task<ActionResult<string>> UpdateUser([FromBody] UserUpdateDto userUpdateDto)
+    {
+        var userId = await _authHelper.GetUserIdFromToken(HttpContext);
+        if (userId is null) return Unauthorized("Invalid Token!");
+        
+        var userDb = await userRepository.GetUserByIdAsync(userId);
+        if (userDb is null) return NotFound("User not found!");
+        
+        _mapper.Map(userUpdateDto, userDb);
+        
+        userRepository.UpdateEntity(userDb);
+        
+        return await userRepository.SaveChangesAsync() ? Ok() : Problem("Failed to update user!");
+    }
 }

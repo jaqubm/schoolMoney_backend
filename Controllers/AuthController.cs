@@ -17,7 +17,7 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
 
     [AllowAnonymous]
     [HttpPost("Register")]
-    public async Task<IActionResult> Register(UserRegisterDto userRegisterDto)
+    public async Task<ActionResult<string>> Register(UserRegisterDto userRegisterDto)
     {
         if (userRegisterDto.Password != userRegisterDto.PasswordConfirm)
             return BadRequest("Passwords do not match!");
@@ -45,12 +45,12 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
             }
         );
         
-        return await authRepository.SaveChangesAsync() ? Ok() : Problem("Failed to Register User");
+        return await authRepository.SaveChangesAsync() ? Ok() : Problem("Failed to Register User!");
     }
     
     [AllowAnonymous]
     [HttpPost("Login")]
-    public async Task<IActionResult> Login(UserLoginDto userLoginDto)
+    public async Task<ActionResult<string>> Login(UserLoginDto userLoginDto)
     {
         var userDb = await authRepository.GetUserByEmailAsync(userLoginDto.Email);
         if (userDb is null) return NotFound("User not found!");
@@ -58,7 +58,39 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
         var passwordHash = _authHelper.GetPasswordHash(userLoginDto.Password, userDb.PasswordSalt);
 
         return passwordHash.Where((t, i) => t != userDb.PasswordHash[i]).Any() 
-            ? StatusCode(401, "Incorrect password!") 
+            ? BadRequest("Wrong Password!")
             : Ok(new Dictionary<string, string> { { "Token", _authHelper.CreateToken(userDb.UserId, userDb.Email) } });
+    }
+
+    [HttpPut("UpdatePassword")]
+    public async Task<ActionResult<string>> UpdatePassword(UserPasswordUpdateDto userPasswordUpdateDto)
+    {
+        var userId = await _authHelper.GetUserIdFromToken(HttpContext);
+        if (userId is null) return Unauthorized("Invalid Token!");
+        
+        var userDb = await authRepository.GetUserByIdAsync(userId);
+        if (userDb is null) return NotFound("User not found!");
+        
+        if (userPasswordUpdateDto.NewPassword != userPasswordUpdateDto.NewPasswordConfirm)
+            return BadRequest("New password does not match password confirm!");
+        
+        var oldPasswordHash = _authHelper.GetPasswordHash(userPasswordUpdateDto.OldPassword, userDb.PasswordSalt);
+        
+        if (oldPasswordHash.Where((t, i) => t != userDb.PasswordHash[i]).Any()) 
+            return BadRequest("Wrong password!");
+        
+        var newPasswordSalt = new byte[128 / 8];
+        
+        using (var randomNumberGenerator = RandomNumberGenerator.Create())
+            randomNumberGenerator.GetNonZeroBytes(newPasswordSalt);
+        
+        var newPasswordHash = _authHelper.GetPasswordHash(userPasswordUpdateDto.NewPassword, newPasswordSalt);
+        
+        userDb.PasswordHash = newPasswordHash;
+        userDb.PasswordSalt = newPasswordSalt;
+        
+        authRepository.UpdateEntity(userDb);
+        
+        return await authRepository.SaveChangesAsync() ? Ok() : Problem("Failed to Update User password!");
     }
 }

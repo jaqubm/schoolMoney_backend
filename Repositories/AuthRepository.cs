@@ -14,11 +14,24 @@ public class AuthRepository(IConfiguration config) : IAuthRepository
             .SaveChangesAsync() > 0;
     }
 
-    public async Task AddEntityAsync<T>(T entityToAdd)
+    public async Task AddEntityAsync<T>(T entity)
     {
-        if (entityToAdd is not null)
+        if (entity is not null)
             await _entityFramework
-                .AddAsync(entityToAdd);
+                .AddAsync(entity);
+    }
+    
+    public void UpdateEntity<T>(T entity)
+    {
+        if (entity is not null)
+            _entityFramework.Update(entity);
+    }
+    
+    public async Task<User?> GetUserByIdAsync(string userId)
+    {
+        return await _entityFramework
+            .User
+            .FindAsync(userId);
     }
 
     public async Task<User?> GetUserByEmailAsync(string email)

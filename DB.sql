@@ -1,3 +1,7 @@
+CREATE DATABASE [schoolMoney-DB];
+
+USE [schoolMoney-DB];
+
 CREATE SCHEMA schoolMoney;
 
 -- Accounts table
