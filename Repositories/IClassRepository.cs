@@ -11,7 +11,6 @@ public interface IClassRepository
     public void DeleteEntity<T>(T entity);
 
     public Task<User?> GetUserByIdAsync(string userId);
-    public Task<Child?> GetChildByIdAsync(string childId);
     
     public Task<Class?> GetClassByIdAsync(string classId);
     public Task<List<Class>> SearchClassesByNameAsync(string className);
