@@ -41,14 +41,6 @@ public class ClassRepository(IConfiguration config) : IClassRepository
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
 
-    public async Task<Child?> GetChildByIdAsync(string childId)
-    {
-        return await _entityFramework
-            .Child
-            .Include(c => c.Class)
-            .FirstOrDefaultAsync(c => c.ChildId == childId);
-    }
-
     public async Task<Class?> GetClassByIdAsync(string classId)
     {
         return await _entityFramework

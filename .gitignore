@@ -539,3 +539,5 @@ $RECYCLE.BIN/
 *.lnk
 
 .idea
+
+Migrations

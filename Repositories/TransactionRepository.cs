@@ -4,7 +4,7 @@ using schoolMoney_backend.Models;
 
 namespace schoolMoney_backend.Repositories;
 
-public class UserRepository(IConfiguration config) : IUserRepository
+public class TransactionRepository(IConfiguration config) : ITransactionRepository
 {
     private readonly DataContext _entityFramework = new(config);
     
@@ -32,30 +32,19 @@ public class UserRepository(IConfiguration config) : IUserRepository
         if (entity is not null)
             _entityFramework.Remove(entity);
     }
-
+    
     public async Task<User?> GetUserByIdAsync(string userId)
     {
         return await _entityFramework
             .User
-            .Include(u => u.Children)
             .Include(u => u.Account)
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
 
-    public async Task<Child?> GetChildByIdAsync(string childId)
+    public async Task<Transaction?> GetTransactionByIdAsync(string transactionId)
     {
         return await _entityFramework
-            .Child
-            .Include(c => c.Class)
-            .FirstOrDefaultAsync(c => c.ChildId == childId);
-    }
-
-    public async Task<Account?> GetAccountByAccountNumberAsync(string accountNumber)
-    {
-        return await _entityFramework
-            .Account
-            .Include(a => a.SourceTransactions)
-            .Include(a => a.DestinationTransactions)
-            .FirstOrDefaultAsync(a => a.AccountNumber == accountNumber);
+            .Transaction
+            .FindAsync(transactionId);
     }
 }

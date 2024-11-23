@@ -1,5 +1,3 @@
-using schoolMoney_backend.Models;
-
 namespace schoolMoney_backend.Dtos;
 
 public class UserDto

@@ -2,7 +2,7 @@ using schoolMoney_backend.Models;
 
 namespace schoolMoney_backend.Repositories;
 
-public interface IClassRepository
+public interface ITransactionRepository
 {
     public Task<bool> SaveChangesAsync();
 
@@ -12,6 +12,5 @@ public interface IClassRepository
 
     public Task<User?> GetUserByIdAsync(string userId);
     
-    public Task<Class?> GetClassByIdAsync(string classId);
-    public Task<List<Class>> SearchClassesByNameAsync(string className);
+    public Task<Transaction?> GetTransactionByIdAsync(string transactionId);
 }

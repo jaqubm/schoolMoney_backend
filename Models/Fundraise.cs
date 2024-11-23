@@ -32,7 +32,7 @@ public class Fundraise(string title, string description, decimal goalAmount, Dat
     public virtual Class? Class { get; set; }
 
     [Required]
-    [MaxLength(50)]
+    [MaxLength(12)]
     [ForeignKey("Account")]
     public string? AccountNumber { get; set; }
     public virtual Account? Account { get; set; }

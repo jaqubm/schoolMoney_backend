@@ -6,7 +6,7 @@ CREATE SCHEMA schoolMoney;
 
 -- Accounts table
 CREATE TABLE schoolMoney.[Account] (
-    AccountNumber NVARCHAR(50) PRIMARY KEY,
+    AccountNumber NVARCHAR(12) PRIMARY KEY,
     Balance DECIMAL(18, 2) NOT NULL DEFAULT 0.0
 );
 
@@ -19,7 +19,7 @@ CREATE TABLE schoolMoney.[User] (
     PasswordHash VARBINARY(MAX) NOT NULL,
     PasswordSalt VARBINARY(MAX) NOT NULL,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
-    AccountNumber NVARCHAR(50),  -- FK to Accounts
+    AccountNumber NVARCHAR(12),  -- FK to Accounts
     FOREIGN KEY (AccountNumber) REFERENCES schoolMoney.[Account](AccountNumber)
 );
 
@@ -28,7 +28,7 @@ CREATE TABLE schoolMoney.[Class] (
     ClassId NVARCHAR(50) PRIMARY KEY,
     Name NVARCHAR(100) NOT NULL,
     SchoolName NVARCHAR(255) NOT NULL,
-    TreasurerId NVARCHAR(50) NOT NULL,
+    TreasurerId NVARCHAR(50) NOT NULL,  -- FK to User
     FOREIGN KEY (TreasurerId) REFERENCES schoolMoney.[User](UserId)
 );
 
@@ -50,8 +50,8 @@ CREATE TABLE schoolMoney.[Fundraise] (
     GoalAmount DECIMAL(18, 2) NOT NULL,
     StartDate DATE NOT NULL,
     EndDate DATE NOT NULL,
-    ClassId NVARCHAR(50) NOT NULL,
-    AccountNumber NVARCHAR(50),  -- FK to Accounts
+    ClassId NVARCHAR(50) NOT NULL,  -- FK to Class
+    AccountNumber NVARCHAR(12),  -- FK to Accounts
     FOREIGN KEY (ClassId) REFERENCES schoolMoney.[Class](ClassId),
     FOREIGN KEY (AccountNumber) REFERENCES schoolMoney.[Account](AccountNumber)
 );
@@ -59,13 +59,14 @@ CREATE TABLE schoolMoney.[Fundraise] (
 -- Transactions table
 CREATE TABLE schoolMoney.[Transaction] (
     TransactionId NVARCHAR(50) PRIMARY KEY,
-    FundraiseId NVARCHAR(50) NOT NULL,
-    UserId NVARCHAR(50) NOT NULL,
     Amount DECIMAL(18, 2) NOT NULL,
     Date DATETIME NOT NULL DEFAULT GETDATE(),
+    Type NVARCHAR(50) NOT NULL,
     Status NVARCHAR(50) NOT NULL,
-    FOREIGN KEY (FundraiseId) REFERENCES schoolMoney.[Fundraise](FundraiseId),
-    FOREIGN KEY (UserId) REFERENCES schoolMoney.[User](UserId)
+    SourceAccountNumber NVARCHAR(12) NOT NULL,  -- FK to Accounts
+    DestinationAccountNumber NVARCHAR(12) NOT NULL,  -- FK to Accounts
+    FOREIGN KEY (SourceAccountNumber) REFERENCES schoolMoney.[Account](AccountNumber),
+    FOREIGN KEY (DestinationAccountNumber) REFERENCES schoolMoney.[Account](AccountNumber)
 );
 
 
