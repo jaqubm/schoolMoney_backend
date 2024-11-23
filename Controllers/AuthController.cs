@@ -34,13 +34,13 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
 
         var userAccount = new Account();
         
-        await authRepository.AddEntityAsync(new User(
-            userRegisterDto.Email,
-            userRegisterDto.Name,
-            userRegisterDto.Surname,
-            passwordHash,
-            passwordSalt)
+        await authRepository.AddEntityAsync(new User
             {
+                Email = userRegisterDto.Email,
+                Name = userRegisterDto.Name,
+                Surname = userRegisterDto.Surname,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
                 Account = userAccount
             }
         );

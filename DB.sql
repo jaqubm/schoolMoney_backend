@@ -37,7 +37,7 @@ CREATE TABLE schoolMoney.[Child] (
     ChildId NVARCHAR(50) PRIMARY KEY,
     Name NVARCHAR(100) NOT NULL,
     ParentId NVARCHAR(50) NOT NULL,
-    ClassId NVARCHAR(50) NOT NULL,
+    ClassId NVARCHAR(50),
     FOREIGN KEY (ParentId) REFERENCES schoolMoney.[User](UserId),
     FOREIGN KEY (ClassId) REFERENCES schoolMoney.[Class](ClassId)
 );

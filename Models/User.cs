@@ -3,32 +3,32 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace schoolMoney_backend.Models;
 
-public class User(string email, string name, string surname, byte[] passwordHash, byte[] passwordSalt)
+public class User
 {
     [Key]
     [MaxLength(50)]
-    public string UserId { get; set; } = Guid.NewGuid().ToString();
+    public string UserId { get; set; }
 
     [Required] 
     [MaxLength(255)] 
-    public string Email { get; set; } = email;
+    public string Email { get; set; }
 
     [Required] 
     [MaxLength(100)] 
-    public string Name { get; set; } = name;
+    public string Name { get; set; }
 
     [Required] 
     [MaxLength(100)] 
-    public string Surname { get; set; } = surname;
+    public string Surname { get; set; }
     
     [Required]
-    public byte[] PasswordHash { get; set; } = passwordHash;
+    public byte[] PasswordHash { get; set; }
     
     [Required]
-    public byte[] PasswordSalt { get; set; } = passwordSalt;
+    public byte[] PasswordSalt { get; set; }
     
     [Required]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; }
 
     [Required]
     [MaxLength(50)]
@@ -39,4 +39,15 @@ public class User(string email, string name, string surname, byte[] passwordHash
     public virtual ICollection<Child>? Children { get; set; } = [];
     public virtual ICollection<Transaction>? Transactions { get; set; } = [];
     public virtual ICollection<Class>? ClassesAsTreasurer { get; set; } = [];
+
+    public User()
+    {
+        UserId = Guid.NewGuid().ToString();
+        Email ??= string.Empty;
+        Name ??= string.Empty;
+        Surname ??= string.Empty;
+        PasswordHash ??= [];
+        PasswordSalt ??= [];
+        CreatedAt = DateTime.Now;
+    }
 }

@@ -13,6 +13,13 @@ public class UserRepository(IConfiguration config) : IUserRepository
         return await _entityFramework
             .SaveChangesAsync() > 0;
     }
+    
+    public async Task AddEntityAsync<T>(T entity)
+    {
+        if (entity is not null)
+            await _entityFramework
+                .AddAsync(entity);
+    }
 
     public void UpdateEntity<T>(T entity)
     {
@@ -31,6 +38,15 @@ public class UserRepository(IConfiguration config) : IUserRepository
         return await _entityFramework
             .User
             .Include(u => u.Children)
+            .Include(u => u.Account)
             .FirstOrDefaultAsync(u => u.UserId == userId);
+    }
+
+    public async Task<Child?> GetChildByIdAsync(string childId)
+    {
+        return await _entityFramework
+            .Child
+            .Include(c => c.Class)
+            .FirstOrDefaultAsync(c => c.ChildId == childId);
     }
 }
