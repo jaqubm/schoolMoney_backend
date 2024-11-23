@@ -63,6 +63,7 @@ CREATE TABLE schoolMoney.[Transaction] (
     UserId NVARCHAR(50) NOT NULL,
     Amount DECIMAL(18, 2) NOT NULL,
     Date DATETIME NOT NULL DEFAULT GETDATE(),
+    Type NVARCHAR(50) NOT NULL,
     Status NVARCHAR(50) NOT NULL,
     FOREIGN KEY (FundraiseId) REFERENCES schoolMoney.[Fundraise](FundraiseId),
     FOREIGN KEY (UserId) REFERENCES schoolMoney.[User](UserId)

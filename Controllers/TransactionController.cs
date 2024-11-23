@@ -1,9 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using schoolMoney_backend.Dtos;
 using schoolMoney_backend.Helpers;
-using schoolMoney_backend.Models;
 using schoolMoney_backend.Repositories;
 
 namespace schoolMoney_backend.Controllers;
