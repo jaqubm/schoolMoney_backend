@@ -6,8 +6,7 @@ public class ClassDto
 {
     public string Name { get; set; } = string.Empty;
     public string SchoolName { get; set; } = string.Empty;
-    public bool CanEdit  { get; set; }
+    public bool IsTreasurer  { get; set; }
     public UserInClassDto Treasurer { get; set; } = new();
     public IEnumerable<ChildInClassDto> Children { get; set; } = [];
-    public IEnumerable<Fundraise> Fundraise { get; set; } = []; // TODO: Add DTO when created
 }
