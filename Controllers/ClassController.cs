@@ -53,6 +53,7 @@ public class ClassController(IConfiguration config, IClassRepository classReposi
             return Unauthorized("You don't have permission to view this class!");
         
         var classDto = _mapper.Map<ClassDto>(classDb);
+        classDto.IsTreasurer = classDb.TreasurerId.Equals(userId);
 
         foreach (var child in classDto.Children)
         {
@@ -75,6 +76,13 @@ public class ClassController(IConfiguration config, IClassRepository classReposi
         
         var classListDb = await classRepository.SearchClassesByNameAsync(className);
         var classList = _mapper.Map<List<ClassListDto>>(classListDb);
+        classList.ForEach(c =>
+        {
+            c.IsTreasurer =
+                classListDb
+                    .FirstOrDefault(cl => 
+                        cl.ClassId.Equals(c.ClassId))!.TreasurerId.Equals(userId);
+        });
         
         return Ok(classList);
     }

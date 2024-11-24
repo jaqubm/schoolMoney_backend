@@ -2,7 +2,7 @@ using schoolMoney_backend.Models;
 
 namespace schoolMoney_backend.Repositories;
 
-public interface ITransactionRepository
+public interface IFundraiseRepository
 {
     public Task<bool> SaveChangesAsync();
 
@@ -11,7 +11,8 @@ public interface ITransactionRepository
     public void DeleteEntity<T>(T entity);
 
     public Task<User?> GetUserByIdAsync(string userId);
+    public Task<Class?> GetClassByIdAsync(string classId);
     public Task<Account?> GetAccountByAccountNumberAsync(string accountNumber);
     
-    public Task<Transaction?> GetTransactionByIdAsync(string transactionId);
+    public Task<Fundraise?> GetFundraiseByIdAsync(string fundraiseId);
 }

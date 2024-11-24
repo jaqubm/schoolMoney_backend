@@ -51,7 +51,7 @@ CREATE TABLE schoolMoney.[Fundraise] (
     StartDate DATE NOT NULL,
     EndDate DATE NOT NULL,
     ClassId NVARCHAR(50) NOT NULL,  -- FK to Class
-    AccountNumber NVARCHAR(12),  -- FK to Accounts
+    AccountNumber NVARCHAR(12) NOT NULL,  -- FK to Accounts
     FOREIGN KEY (ClassId) REFERENCES schoolMoney.[Class](ClassId),
     FOREIGN KEY (AccountNumber) REFERENCES schoolMoney.[Account](AccountNumber)
 );

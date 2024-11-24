@@ -35,6 +35,15 @@ public class TransactionController(IConfiguration config, ITransactionRepository
         if (userDb.Account.Balance < transactionWithdrawDto.Amount) 
             return BadRequest("Insufficient funds to withdraw given amount!");
         
+        var destinationAccountDb = await transactionRepository.GetAccountByAccountNumberAsync(transactionWithdrawDto.DestinationAccountNumber);
+        if (destinationAccountDb is null)
+        {
+            await transactionRepository.AddEntityAsync(new Account
+            {
+                AccountNumber = transactionWithdrawDto.DestinationAccountNumber
+            });
+        }
+        
         var transaction = _mapper.Map<Transaction>(transactionWithdrawDto);
         transaction.SourceAccountNumber = userDb.AccountNumber;
         transaction.Type = "Withdraw";
@@ -57,6 +66,15 @@ public class TransactionController(IConfiguration config, ITransactionRepository
         var userDb = await transactionRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
+        
+        var sourceAccountDb = await transactionRepository.GetAccountByAccountNumberAsync(transactionDepositDto.SourceAccountNumber);
+        if (sourceAccountDb is null)
+        {
+            await transactionRepository.AddEntityAsync(new Account
+            {
+                AccountNumber = transactionDepositDto.SourceAccountNumber
+            });
+        }
         
         var transaction = _mapper.Map<Transaction>(transactionDepositDto);
         transaction.DestinationAccountNumber = userDb.AccountNumber;
@@ -83,14 +101,20 @@ public class TransactionController(IConfiguration config, ITransactionRepository
         if (userDb.Account.Balance < transactionTransferDto.Amount) 
             return BadRequest("Insufficient funds to withdraw given amount!");
         
+        var destinationAccountDb = await transactionRepository.GetAccountByAccountNumberAsync(transactionTransferDto.DestinationAccountNumber);
+        if (destinationAccountDb is null) return NotFound("Destination Account not found!");
+        
         var transaction = _mapper.Map<Transaction>(transactionTransferDto);
+        transaction.SourceAccountNumber = userDb.AccountNumber;
         transaction.Type = "Transfer";
         
         await transactionRepository.AddEntityAsync(transaction);
         
         userDb.Account.Balance -= transactionTransferDto.Amount;
+        destinationAccountDb.Balance += transactionTransferDto.Amount;
         
         transactionRepository.UpdateEntity(userDb);
+        transactionRepository.UpdateEntity(destinationAccountDb);
         
         return await transactionRepository.SaveChangesAsync() ? Ok(transaction.TransactionId) : Problem("Transaction failed to process!");
     }

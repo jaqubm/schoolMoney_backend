@@ -4,7 +4,7 @@ using schoolMoney_backend.Models;
 
 namespace schoolMoney_backend.Repositories;
 
-public class TransactionRepository(IConfiguration config) : ITransactionRepository
+public class FundraiseRepository(IConfiguration config) : IFundraiseRepository
 {
     private readonly DataContext _entityFramework = new(config);
     
@@ -32,26 +32,41 @@ public class TransactionRepository(IConfiguration config) : ITransactionReposito
         if (entity is not null)
             _entityFramework.Remove(entity);
     }
-    
+
     public async Task<User?> GetUserByIdAsync(string userId)
     {
         return await _entityFramework
             .User
-            .Include(u => u.Account)
+            .Include(u => u.Children)
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
 
+    public async Task<Class?> GetClassByIdAsync(string classId)
+    {
+        return await _entityFramework
+            .Class
+            .Include(c => c.Treasurer)
+            .Include(c => c.Children)
+            .Include(c => c.Fundraises)
+            .FirstOrDefaultAsync(c => c.ClassId == classId);
+    }
+    
     public async Task<Account?> GetAccountByAccountNumberAsync(string accountNumber)
     {
         return await _entityFramework
             .Account
-            .FindAsync(accountNumber);
+            .Include(a => a.SourceTransactions)
+            .Include(a => a.DestinationTransactions)
+            .FirstOrDefaultAsync(a => a.AccountNumber == accountNumber);
     }
 
-    public async Task<Transaction?> GetTransactionByIdAsync(string transactionId)
+    public async Task<Fundraise?> GetFundraiseByIdAsync(string fundraiseId)
     {
         return await _entityFramework
-            .Transaction
-            .FindAsync(transactionId);
+            .Fundraise
+            .Include(f => f.Class)
+            .Include(f => f.Account)
+            .ThenInclude(a => a.DestinationTransactions)
+            .FirstOrDefaultAsync(f => f.FundraiseId == fundraiseId);
     }
 }

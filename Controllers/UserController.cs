@@ -21,6 +21,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         c.CreateMap<Account, AccountDto>();
         c.CreateMap<UserUpdateDto, User>();
         c.CreateMap<Child, ChildDto>();
+        c.CreateMap<Fundraise, FundraiseListDto>();
         c.CreateMap<Transaction, TransactionDto>();
     }));
     
@@ -119,6 +120,70 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         return await userRepository.SaveChangesAsync() ? Ok() : Problem("Failed to delete child profile!");
     }
 
+    [HttpGet("GetFundraises")]
+    public async Task<ActionResult<List<FundraiseDto>>> GetFundraises()
+    {
+        var userId = await _authHelper.GetUserIdFromToken(HttpContext);
+        if (userId is null) return BadRequest("Invalid Token!");
+        
+        var userDb = await userRepository.GetUserByIdAsync(userId);
+        if (userDb is null) return NotFound("User not found!");
+        
+        var fundraises = new List<FundraiseListDto>();
+        
+        if (userDb.ClassesAsTreasurer is not null)
+        {
+            foreach (var classAsTreasurer in userDb.ClassesAsTreasurer)
+            {
+                var classDb = await userRepository.GetClassByIdAsync(classAsTreasurer.ClassId);
+                if (classDb is null) return NotFound("Class not found!");
+                if (classDb.Fundraises is null) continue;
+            
+                fundraises
+                    .AddRange(classDb
+                        .Fundraises
+                        .Select(classFundraise =>
+                        {
+                            var fundraise = _mapper.Map<FundraiseListDto>(classFundraise);
+                            fundraise.ClassName = classDb.Name;
+                            fundraise.SchoolName = classDb.SchoolName;
+                            fundraise.IsTreasurer = true;
+                            return fundraise;
+                        })
+                    );
+            }
+        }
+
+        if (userDb.Children is not null)
+        {
+            foreach (var child in userDb.Children)
+            {
+                var childDb = await userRepository.GetChildByIdAsync(child.ChildId);
+                if (childDb is null) return NotFound("Child not found!");
+                if (childDb.Class?.Fundraises is null) continue;
+
+                fundraises
+                    .AddRange(childDb
+                        .Class
+                        .Fundraises
+                        .Select(classFundraise =>
+                        {
+                            var fundraise = _mapper.Map<FundraiseListDto>(classFundraise);
+                            fundraise.ClassName = childDb.Class.Name;
+                            fundraise.SchoolName = childDb.Class.SchoolName;
+                            return fundraise;
+                        })
+                    );
+            }
+        }
+        
+        fundraises = fundraises
+            .DistinctBy(f => f.FundraiseId) // Remove duplicates based on FundraiseId
+            .ToList();
+        
+        return Ok(fundraises);
+    }
+    
     [HttpGet("GetTransactionHistory")]
     public async Task<ActionResult<List<TransactionDto>>> GetTransactionHistory()
     {
