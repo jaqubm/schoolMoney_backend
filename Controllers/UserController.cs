@@ -147,7 +147,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
                             var fundraise = _mapper.Map<FundraiseListDto>(classFundraise);
                             fundraise.ClassName = classDb.Name;
                             fundraise.SchoolName = classDb.SchoolName;
-                            fundraise.IsFundraiser = true;
+                            fundraise.IsTreasurer = true;
                             return fundraise;
                         })
                     );
