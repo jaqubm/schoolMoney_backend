@@ -41,6 +41,13 @@ public class TransactionRepository(IConfiguration config) : ITransactionReposito
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
 
+    public async Task<Account?> GetAccountByAccountNumberAsync(string accountNumber)
+    {
+        return await _entityFramework
+            .Account
+            .FindAsync(accountNumber);
+    }
+
     public async Task<Transaction?> GetTransactionByIdAsync(string transactionId)
     {
         return await _entityFramework

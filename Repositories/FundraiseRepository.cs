@@ -65,7 +65,8 @@ public class FundraiseRepository(IConfiguration config) : IFundraiseRepository
         return await _entityFramework
             .Fundraise
             .Include(f => f.Class)
-            .Include(f => f.Transactions)
+            .Include(f => f.Account)
+            .ThenInclude(a => a.DestinationTransactions)
             .FirstOrDefaultAsync(f => f.FundraiseId == fundraiseId);
     }
 }

@@ -53,6 +53,7 @@ public class ClassController(IConfiguration config, IClassRepository classReposi
             return Unauthorized("You don't have permission to view this class!");
         
         var classDto = _mapper.Map<ClassDto>(classDb);
+        classDto.CanEdit = classDb.TreasurerId.Equals(userId);
 
         foreach (var child in classDto.Children)
         {

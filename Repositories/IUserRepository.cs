@@ -13,6 +13,6 @@ public interface IUserRepository
     public Task<User?> GetUserByIdAsync(string userId);
     
     public Task<Child?> GetChildByIdAsync(string childId);
-    
     public Task<Account?> GetAccountByAccountNumberAsync(string accountNumber);
+    public Task<Class?> GetClassByIdAsync(string classId);
 }

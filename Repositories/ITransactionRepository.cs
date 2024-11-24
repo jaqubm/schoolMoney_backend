@@ -11,6 +11,7 @@ public interface ITransactionRepository
     public void DeleteEntity<T>(T entity);
 
     public Task<User?> GetUserByIdAsync(string userId);
+    public Task<Account?> GetAccountByAccountNumberAsync(string accountNumber);
     
     public Task<Transaction?> GetTransactionByIdAsync(string transactionId);
 }

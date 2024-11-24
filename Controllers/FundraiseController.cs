@@ -17,7 +17,7 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
     
     private readonly Mapper _mapper = new(new MapperConfiguration(c =>
     {
-        
+        c.CreateMap<Fundraise, FundraiseDto>();
     }));
 
     [HttpPost("Create")]
@@ -45,6 +45,39 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
         await fundraiseRepository.AddEntityAsync(fundraise);
 
         return await fundraiseRepository.SaveChangesAsync() ? Ok(fundraise.FundraiseId) : Problem("Failed to create fundraise!");
+    }
+
+    [HttpGet("Get/{fundraiseId}")]
+    public async Task<ActionResult<FundraiseDto>> GetFundraise([FromRoute] string fundraiseId)
+    {
+        var userId = await _authHelper.GetUserIdFromToken(HttpContext);
+        if (userId is null) return BadRequest("Invalid Token!");
+        
+        var fundraiseDb = await fundraiseRepository.GetFundraiseByIdAsync(fundraiseId);
+        if (fundraiseDb is null) return NotFound("Fundraise not found!");
+        if (fundraiseDb.Class is null) return NotFound("Class not found!");
+        if (fundraiseDb.Account is null) return NotFound("Account not found!");
+        
+        var fundraise = _mapper.Map<Fundraise, FundraiseDto>(fundraiseDb);
+        
+        fundraise.RaisedAmount = fundraiseDb.Account.Balance;
+        
+        if (fundraiseDb.Account.DestinationTransactions is not null)
+        {
+            fundraise.TotalSupporters = fundraiseDb
+                .Account
+                .DestinationTransactions
+                .Where(t => t.DestinationAccountNumber == fundraiseDb.Account.AccountNumber)
+                .Select(t => t.SourceAccountNumber)
+                .Distinct()
+                .Count();
+        }
+        
+        fundraise.ClassName = fundraiseDb.Class.Name;
+        fundraise.SchoolName = fundraiseDb.Class.SchoolName;
+        fundraise.CanEdit = fundraiseDb.Class.TreasurerId.Equals(userId);
+
+        return Ok(fundraise);
     }
 
     [HttpPut("Update/{fundraiseId}")]

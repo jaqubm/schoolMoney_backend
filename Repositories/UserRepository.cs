@@ -37,8 +37,9 @@ public class UserRepository(IConfiguration config) : IUserRepository
     {
         return await _entityFramework
             .User
-            .Include(u => u.Children)
             .Include(u => u.Account)
+            .Include(u => u.Children)
+            .Include(u => u.ClassesAsTreasurer)
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
 
@@ -47,6 +48,7 @@ public class UserRepository(IConfiguration config) : IUserRepository
         return await _entityFramework
             .Child
             .Include(c => c.Class)
+            .ThenInclude(c => c.Fundraises)
             .FirstOrDefaultAsync(c => c.ChildId == childId);
     }
 
@@ -57,5 +59,13 @@ public class UserRepository(IConfiguration config) : IUserRepository
             .Include(a => a.SourceTransactions)
             .Include(a => a.DestinationTransactions)
             .FirstOrDefaultAsync(a => a.AccountNumber == accountNumber);
+    }
+
+    public async Task<Class?> GetClassByIdAsync(string classId)
+    {
+        return await _entityFramework
+            .Class
+            .Include(c => c.Fundraises)
+            .FirstOrDefaultAsync(c => c.ClassId == classId);
     }
 }

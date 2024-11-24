@@ -37,8 +37,6 @@ public class Fundraise
     public string AccountNumber { get; set; }
     public virtual Account? Account { get; set; }
 
-    public virtual ICollection<Transaction>? Transactions { get; set; } = [];
-
     public Fundraise()
     {
         FundraiseId = Guid.NewGuid().ToString();
