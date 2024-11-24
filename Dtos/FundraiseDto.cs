@@ -13,5 +13,5 @@ public class FundraiseDto
     public string ClassId { get; set; } = string.Empty;
     public string ClassName { get; set; } = string.Empty;
     public string SchoolName { get; set; } = string.Empty;
-    public bool CanEdit { get; set; }
+    public bool IsTreasurer { get; set; }
 }

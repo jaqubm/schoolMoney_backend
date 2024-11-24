@@ -75,7 +75,7 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
         
         fundraise.ClassName = fundraiseDb.Class.Name;
         fundraise.SchoolName = fundraiseDb.Class.SchoolName;
-        fundraise.CanEdit = fundraiseDb.Class.TreasurerId.Equals(userId);
+        fundraise.IsTreasurer = fundraiseDb.Class.TreasurerId.Equals(userId);
 
         return Ok(fundraise);
     }
