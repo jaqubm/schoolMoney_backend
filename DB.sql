@@ -47,6 +47,7 @@ CREATE TABLE schoolMoney.[Fundraise] (
     FundraiseId NVARCHAR(50) PRIMARY KEY,
     Title NVARCHAR(255) NOT NULL,
     Description NVARCHAR(MAX),
+    ImageIndex INT,
     GoalAmount DECIMAL(18, 2) NOT NULL,
     StartDate DATE NOT NULL,
     EndDate DATE NOT NULL,

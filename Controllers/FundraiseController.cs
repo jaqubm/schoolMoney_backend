@@ -35,6 +35,7 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
         {
             Title = fundraiseCreatorDto.Title,
             Description = fundraiseCreatorDto.Description,
+            ImageIndex = fundraiseCreatorDto.ImageIndex,
             GoalAmount = fundraiseCreatorDto.GoalAmount,
             StartDate = fundraiseCreatorDto.StartDate,
             EndDate = fundraiseCreatorDto.EndDate,
@@ -97,6 +98,7 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
         
         fundraiseDb.Title = fundraiseCreatorDto.Title;
         fundraiseDb.Description = fundraiseCreatorDto.Description;
+        fundraiseDb.ImageIndex = fundraiseCreatorDto.ImageIndex;
         fundraiseDb.GoalAmount = fundraiseCreatorDto.GoalAmount;
         fundraiseDb.StartDate = fundraiseCreatorDto.StartDate;
         fundraiseDb.EndDate = fundraiseCreatorDto.EndDate;
