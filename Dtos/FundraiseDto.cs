@@ -4,6 +4,7 @@ public class FundraiseDto
 {
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public int ImageIndex { get; set; }
     public decimal GoalAmount { get; set; }
     public decimal RaisedAmount { get; set; }
     public int TotalSupporters { get; set; }

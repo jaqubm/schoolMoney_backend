@@ -15,6 +15,9 @@ public class Fundraise
     
     [Required]
     public string Description { get; set; }
+    
+    [Required]
+    public int ImageIndex { get; set; }
 
     [Required] 
     public decimal GoalAmount { get; set; }
