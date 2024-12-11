@@ -137,7 +137,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
     }
 
     [HttpGet("GetFundraises")]
-    public async Task<ActionResult<List<FundraiseDto>>> GetFundraises()
+    public async Task<ActionResult<List<FundraiseListDto>>> GetFundraises()
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return BadRequest("Invalid Token!");
