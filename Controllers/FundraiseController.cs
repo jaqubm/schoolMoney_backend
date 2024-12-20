@@ -55,8 +55,8 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
         
         var fundraiseDb = await fundraiseRepository.GetFundraiseByIdAsync(fundraiseId);
         if (fundraiseDb is null) return NotFound("Fundraise not found!");
-        if (fundraiseDb.Class is null) return NotFound("Class not found!");
-        if (fundraiseDb.Account is null) return NotFound("Account not found!");
+        if (fundraiseDb.Class is null) return NotFound("Class of fundraise not found!");
+        if (fundraiseDb.Account is null) return NotFound("Account of fundraise not found!");
         
         var fundraise = _mapper.Map<Fundraise, FundraiseDto>(fundraiseDb);
         
@@ -105,5 +105,23 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
         fundraiseRepository.UpdateEntity(fundraiseDb);
         
         return await fundraiseRepository.SaveChangesAsync() ? Ok(fundraiseDb.FundraiseId) : Problem("Failed to update fundraise!");
+    }
+    
+    [HttpDelete("Delete/{fundraiseId}")]
+    public async Task<ActionResult<string>> DeleteFundraise([FromRoute] string fundraiseId)
+    {
+        var userId = await _authHelper.GetUserIdFromToken(HttpContext);
+        if (userId is null) return BadRequest("Invalid Token!");
+        
+        var fundraiseDb = await fundraiseRepository.GetFundraiseByIdAsync(fundraiseId);
+        if (fundraiseDb is null) return NotFound("Fundraise not found!");
+        if (fundraiseDb.Class is null) return NotFound("Class of fundraise not found!");
+        if (fundraiseDb.Account is null) return NotFound("Account of fundraise not found!");
+        if (fundraiseDb.Account.Balance > decimal.Zero) 
+            return BadRequest("You need to withdraw money from the fundraise in order to delete it!");
+        
+        fundraiseRepository.DeleteEntity(fundraiseDb);
+
+        return await fundraiseRepository.SaveChangesAsync() ? Ok(fundraiseDb.FundraiseId) : Problem("Failed to delete fundraise!");
     }
 }
