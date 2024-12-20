@@ -68,4 +68,13 @@ public class UserRepository(IConfiguration config) : IUserRepository
             .Include(c => c.Fundraises)
             .FirstOrDefaultAsync(c => c.ClassId == classId);
     }
+
+    public async Task<List<Class>> GetClassListByTreasurerIdAsync(string treasurerId)
+    {
+        return await _entityFramework
+            .Class
+            .Include(c => c.Treasurer)
+            .Where(c => c.TreasurerId == treasurerId)
+            .ToListAsync();
+    }
 }

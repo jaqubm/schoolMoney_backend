@@ -21,6 +21,8 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         c.CreateMap<Account, AccountDto>();
         c.CreateMap<UserUpdateDto, User>();
         c.CreateMap<Child, ChildDto>();
+        c.CreateMap<Class, ClassListDto>();
+        c.CreateMap<User, UserInClassDto>();
         c.CreateMap<Fundraise, FundraiseListDto>();
         c.CreateMap<Transaction, TransactionDto>();
     }));
@@ -119,9 +121,23 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         
         return await userRepository.SaveChangesAsync() ? Ok() : Problem("Failed to delete child profile!");
     }
+    
+    [HttpGet("GetClasses")]
+    public async Task<ActionResult<List<ClassListDto>>> GetClasses()
+    {
+        var userId = await _authHelper.GetUserIdFromToken(HttpContext);
+        if (userId is null) return BadRequest("Invalid Token!");
+        
+        var classListDb = await userRepository.GetClassListByTreasurerIdAsync(userId);
+        
+        var classList = _mapper.Map<List<ClassListDto>>(classListDb);
+        classList.ForEach(c => c.IsTreasurer = true);
+        
+        return Ok(classList);
+    }
 
     [HttpGet("GetFundraises")]
-    public async Task<ActionResult<List<FundraiseDto>>> GetFundraises()
+    public async Task<ActionResult<List<FundraiseListDto>>> GetFundraises()
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return BadRequest("Invalid Token!");

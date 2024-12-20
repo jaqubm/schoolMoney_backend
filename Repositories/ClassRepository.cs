@@ -56,7 +56,7 @@ public class ClassRepository(IConfiguration config) : IClassRepository
         var queryable = _entityFramework.Class.AsQueryable();
         
         if (!string.IsNullOrEmpty(className))
-            queryable = queryable.Where(c => c.Name.StartsWith(className));
+            queryable = queryable.Where(c => c.Name.Contains(className));
         
         return await queryable.Take(10).ToListAsync();
     }

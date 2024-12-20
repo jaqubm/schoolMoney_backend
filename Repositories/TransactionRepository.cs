@@ -38,6 +38,8 @@ public class TransactionRepository(IConfiguration config) : ITransactionReposito
         return await _entityFramework
             .User
             .Include(u => u.Account)
+            .Include(u => u.Account.SourceTransactions)
+            .Include(u => u.Account.DestinationTransactions)
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
 
@@ -45,13 +47,17 @@ public class TransactionRepository(IConfiguration config) : ITransactionReposito
     {
         return await _entityFramework
             .Account
-            .FindAsync(accountNumber);
+            .Include(a => a.SourceTransactions)
+            .Include(a => a.DestinationTransactions)
+            .FirstOrDefaultAsync(a => a.AccountNumber == accountNumber);
     }
 
     public async Task<Transaction?> GetTransactionByIdAsync(string transactionId)
     {
         return await _entityFramework
             .Transaction
-            .FindAsync(transactionId);
+            .Include(t => t.SourceAccount)
+            .Include(t => t.DestinationAccount)
+            .FirstOrDefaultAsync(t => t.TransactionId == transactionId);
     }
 }
