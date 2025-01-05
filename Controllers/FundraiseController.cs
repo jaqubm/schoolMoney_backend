@@ -115,7 +115,7 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
         if (fundraiseDb is null) return NotFound("Fundraise not found!");
         if (fundraiseDb.Class is null) return NotFound("Class of fundraise not found!");
         if (fundraiseDb.Account is null) return NotFound("Account of fundraise not found!");
-        if (!(fundraiseDb.Class.TreasurerId.Equals(userId))) return Unauthorized("Only treasurers can update fundraise!");
+        if (!(fundraiseDb.Class.TreasurerId.Equals(userId))) return Unauthorized("Only treasurers can withdraw money from fundraise!");
         
         var userDb = await transactionRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
@@ -152,6 +152,7 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
         if (fundraiseDb.Account is null) return NotFound("Account of fundraise not found!");
         if (fundraiseDb.Account.Balance > decimal.Zero) 
             return BadRequest("You need to withdraw money from the fundraise in order to delete it!");
+        if (!(fundraiseDb.Class.TreasurerId.Equals(userId))) return Unauthorized("Only treasurers can delete fundraise!");
         
         fundraiseRepository.DeleteEntity(fundraiseDb);
 
@@ -164,14 +165,13 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return Unauthorized("Invalid Token!");
 
-        var fundraise = await fundraiseRepository.GetFundraiseByIdAsync(fundraiseId);
-        if (fundraise is null) return NotFound("Fundraise not found!");
-        if (fundraise.Account is null) return NotFound("Fundraise account not found!");
+        var fundraiseDb = await fundraiseRepository.GetFundraiseByIdAsync(fundraiseId);
+        if (fundraiseDb is null) return NotFound("Fundraise not found!");
+        if (fundraiseDb.Class is null) return NotFound("Class of fundraise not found!");
+        if (fundraiseDb.Account is null) return NotFound("Fundraise account not found!");
+        if (!(fundraiseDb.Class.TreasurerId.Equals(userId))) return Unauthorized("You are not authorized to view this transaction history!");
 
-        if (fundraise.Class?.TreasurerId != userId)
-            return Unauthorized("You are not authorized to view this transaction history!");
-
-        var account = await transactionRepository.GetAccountByAccountNumberAsync(fundraise.Account.AccountNumber);
+        var account = await transactionRepository.GetAccountByAccountNumberAsync(fundraiseDb.Account.AccountNumber);
         if (account is null) return NotFound("Account not found!");
 
         var transactions = new List<TransactionDto>();
