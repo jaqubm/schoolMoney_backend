@@ -106,7 +106,7 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
     }
 
     [HttpPut("Withdraw/{fundraiseId}")]
-    public async Task<ActionResult<string>> WithdrawFundraiseMoney([FromRoute] string fundraiseId)
+    public async Task<ActionResult<string>> WithdrawFundraiseMoney([FromRoute] string fundraiseId, [FromBody] decimal amount)
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return BadRequest("Invalid Token!");
@@ -120,19 +120,21 @@ public class FundraiseController(IConfiguration config, IFundraiseRepository fun
         var userDb = await transactionRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
+        
+        amount = amount.Equals(decimal.Zero) ? fundraiseDb.Account.Balance : amount;
 
         var transaction = new Transaction
         {
             Type = "Withdraw",
-            Amount = fundraiseDb.Account.Balance,
+            Amount = amount,
             SourceAccountNumber = fundraiseDb.Account.AccountNumber,
             DestinationAccountNumber = userDb.AccountNumber,
         };
         
         await transactionRepository.AddEntityAsync(transaction);
         
-        userDb.Account.Balance += fundraiseDb.Account.Balance;
-        fundraiseDb.Account.Balance = 0;
+        userDb.Account.Balance += amount;
+        fundraiseDb.Account.Balance -= amount;
         
         fundraiseRepository.UpdateEntity(userDb);
         fundraiseRepository.UpdateEntity(fundraiseDb);
