@@ -7,5 +7,5 @@ public class UserDto
     public string Surname { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public AccountDto Account { get; set; } = new();
-    public IEnumerable<ChildDto>? Children { get; set; } = [];
+    public ICollection<ChildDto> Children { get; set; } = [];
 }

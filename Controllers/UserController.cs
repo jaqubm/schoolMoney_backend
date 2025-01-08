@@ -20,7 +20,6 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         c.CreateMap<User, UserDto>();
         c.CreateMap<Account, AccountDto>();
         c.CreateMap<UserUpdateDto, User>();
-        c.CreateMap<Child, ChildDto>();
         c.CreateMap<Class, ClassListDto>();
         c.CreateMap<User, UserInClassDto>();
         c.CreateMap<Fundraise, FundraiseListDto>();
@@ -36,7 +35,27 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
         
-        return Ok(_mapper.Map<UserDto>(userDb));
+        var userDto = _mapper.Map<UserDto>(userDb);
+
+        if (userDb.Children is null) return Ok(userDto);
+        
+        foreach (var child in userDb.Children)
+        {
+            var childDb = await userRepository.GetChildByIdAsync(child.ChildId);
+            if (childDb is null) return NotFound("Child not found!");
+
+            var childDto = new ChildDto
+            {
+                ChildId = childDb.ChildId,
+                Name = childDb.Name,
+                ClassName = childDb.Class?.Name,
+                SchoolName = childDb.Class?.SchoolName
+            };
+
+            userDto.Children.Add(childDto);
+        }
+
+        return Ok(userDto);
     }
 
     [HttpPut("Update")]
@@ -81,10 +100,15 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         
         var childDb = await userRepository.GetChildByIdAsync(childId);
         if (childDb is null) return NotFound("Child not found!");
-        if (!childDb.ParentId.Equals(userId)) return Unauthorized("You cannot update child profile which you are not owner!");
-        
-        var childDto = _mapper.Map<ChildDto>(childDb);
-        childDto.ClassName = childDb.Class?.Name;
+        if (!childDb.ParentId.Equals(userId)) return Unauthorized("You cannot get child profile which you are not owner!");
+
+        var childDto = new ChildDto
+        {
+            ChildId = childDb.ChildId,
+            Name = childDb.Name,
+            ClassName = childDb.Class?.Name,
+            SchoolName = childDb.Class?.SchoolName
+        };
         
         return Ok(childDto);
     }
