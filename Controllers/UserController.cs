@@ -17,7 +17,6 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
     
     private readonly Mapper _mapper = new(new MapperConfiguration(c =>
     {
-        c.CreateMap<User, UserDto>();
         c.CreateMap<Account, AccountDto>();
         c.CreateMap<UserUpdateDto, User>();
         c.CreateMap<Class, ClassListDto>();
