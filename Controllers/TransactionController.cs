@@ -34,14 +34,23 @@ public class TransactionController(IConfiguration config, ITransactionRepository
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
         if (userDb.Account.Balance < transactionWithdrawDto.Amount) 
             return BadRequest("Insufficient funds to withdraw given amount!");
-        
-        var destinationAccountDb = await transactionRepository.GetAccountByAccountNumberAsync(transactionWithdrawDto.DestinationAccountNumber);
-        if (destinationAccountDb is null)
+
+        if (transactionWithdrawDto.DestinationAccountNumber is null or "")
         {
-            await transactionRepository.AddEntityAsync(new Account
+            var destinationAccount = new Account();
+            await transactionRepository.AddEntityAsync(destinationAccount);
+            transactionWithdrawDto.DestinationAccountNumber = destinationAccount.AccountNumber;
+        }
+        else
+        {
+            var destinationAccountDb = await transactionRepository.GetAccountByAccountNumberAsync(transactionWithdrawDto.DestinationAccountNumber);
+            if (destinationAccountDb is null)
             {
-                AccountNumber = transactionWithdrawDto.DestinationAccountNumber
-            });
+                await transactionRepository.AddEntityAsync(new Account
+                {
+                    AccountNumber = transactionWithdrawDto.DestinationAccountNumber
+                });
+            }
         }
         
         var transaction = _mapper.Map<Transaction>(transactionWithdrawDto);
@@ -67,13 +76,22 @@ public class TransactionController(IConfiguration config, ITransactionRepository
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
         
-        var sourceAccountDb = await transactionRepository.GetAccountByAccountNumberAsync(transactionDepositDto.SourceAccountNumber);
-        if (sourceAccountDb is null)
+        if (transactionDepositDto.SourceAccountNumber is null or "")
         {
-            await transactionRepository.AddEntityAsync(new Account
+            var sourceAccount = new Account();
+            await transactionRepository.AddEntityAsync(sourceAccount);
+            transactionDepositDto.SourceAccountNumber = sourceAccount.AccountNumber;
+        }
+        else
+        {
+            var sourceAccountDb = await transactionRepository.GetAccountByAccountNumberAsync(transactionDepositDto.SourceAccountNumber);
+            if (sourceAccountDb is null)
             {
-                AccountNumber = transactionDepositDto.SourceAccountNumber
-            });
+                await transactionRepository.AddEntityAsync(new Account
+                {
+                    AccountNumber = transactionDepositDto.SourceAccountNumber
+                });
+            }
         }
         
         var transaction = _mapper.Map<Transaction>(transactionDepositDto);
