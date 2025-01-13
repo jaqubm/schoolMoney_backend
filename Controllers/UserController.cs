@@ -34,8 +34,15 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         
         var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
-        
-        var userDto = _mapper.Map<UserDto>(userDb);
+
+        var userDto = new UserDto
+        {
+            Email = userDb.Email,
+            Name = userDb.Name,
+            Surname = userDb.Surname,
+            CreatedAt = userDb.CreatedAt,
+            Account = _mapper.Map<AccountDto>(userDb.Account)
+        };
 
         if (userDb.Children is null) return Ok(userDto);
         
@@ -52,7 +59,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
                 SchoolName = childDb.Class?.SchoolName
             };
 
-            userDto.Children.Add(childDto);
+            userDto.ChildrenList.Add(childDto);
         }
 
         return Ok(userDto);
