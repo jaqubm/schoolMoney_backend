@@ -17,7 +17,6 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
     
     private readonly Mapper _mapper = new(new MapperConfiguration(c =>
     {
-        c.CreateMap<User, UserDto>();
         c.CreateMap<Account, AccountDto>();
         c.CreateMap<UserUpdateDto, User>();
         c.CreateMap<Class, ClassListDto>();
@@ -34,8 +33,15 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         
         var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
-        
-        var userDto = _mapper.Map<UserDto>(userDb);
+
+        var userDto = new UserDto
+        {
+            Email = userDb.Email,
+            Name = userDb.Name,
+            Surname = userDb.Surname,
+            CreatedAt = userDb.CreatedAt,
+            Account = _mapper.Map<AccountDto>(userDb.Account)
+        };
 
         if (userDb.Children is null) return Ok(userDto);
         
