@@ -59,7 +59,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
                 SchoolName = childDb.Class?.SchoolName
             };
 
-            userDto.ChildrenList.Add(childDto);
+            userDto.Children.Add(childDto);
         }
 
         return Ok(userDto);
