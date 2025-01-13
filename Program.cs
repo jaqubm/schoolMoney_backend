@@ -58,7 +58,7 @@ builder.Services.AddCors(options =>
     
     options.AddPolicy("ProdCors", policyBuilder =>
     {
-        policyBuilder.WithOrigins("http://localhost:3000")
+        policyBuilder.WithOrigins(["https://schoolmoney.jaqubm.dev", "http://localhost:3000"])
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
