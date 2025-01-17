@@ -11,9 +11,7 @@ public interface IUserRepository
     public void DeleteEntity<T>(T entity);
 
     public Task<User?> GetUserByIdAsync(string userId);
+    public Task<User?> GetUserByEmailAsync(string email);
     
-    public Task<Child?> GetChildByIdAsync(string childId);
-    public Task<Account?> GetAccountByAccountNumberAsync(string accountNumber);
-    public Task<Class?> GetClassByIdAsync(string classId);
-    public Task<List<Class>> GetClassListByTreasurerIdAsync(string treasurerId);
+    public Task<bool> UserWithGivenEmailExistsAsync(string email);
 }

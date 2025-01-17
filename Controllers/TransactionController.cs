@@ -11,7 +11,12 @@ namespace schoolMoney_backend.Controllers;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class TransactionController(IConfiguration config, ITransactionRepository transactionRepository) : ControllerBase
+public class TransactionController(
+    IConfiguration config, 
+    ITransactionRepository transactionRepository,
+    IUserRepository userRepository,
+    IAccountRepository accountRepository
+    ) : ControllerBase
 {
     private readonly AuthHelper _authHelper = new (config);
     
@@ -29,7 +34,7 @@ public class TransactionController(IConfiguration config, ITransactionRepository
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return Unauthorized("Invalid Token!");
 
-        var userDb = await transactionRepository.GetUserByIdAsync(userId);
+        var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
         if (userDb.Account.Balance < transactionWithdrawDto.Amount) 
@@ -43,7 +48,7 @@ public class TransactionController(IConfiguration config, ITransactionRepository
         }
         else
         {
-            var destinationAccountDb = await transactionRepository.GetAccountByAccountNumberAsync(transactionWithdrawDto.DestinationAccountNumber);
+            var destinationAccountDb = await accountRepository.GetAccountByAccountNumberAsync(transactionWithdrawDto.DestinationAccountNumber);
             if (destinationAccountDb is null)
             {
                 await transactionRepository.AddEntityAsync(new Account
@@ -72,7 +77,7 @@ public class TransactionController(IConfiguration config, ITransactionRepository
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return Unauthorized("Invalid Token!");
 
-        var userDb = await transactionRepository.GetUserByIdAsync(userId);
+        var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
         
@@ -84,7 +89,7 @@ public class TransactionController(IConfiguration config, ITransactionRepository
         }
         else
         {
-            var sourceAccountDb = await transactionRepository.GetAccountByAccountNumberAsync(transactionDepositDto.SourceAccountNumber);
+            var sourceAccountDb = await accountRepository.GetAccountByAccountNumberAsync(transactionDepositDto.SourceAccountNumber);
             if (sourceAccountDb is null)
             {
                 await transactionRepository.AddEntityAsync(new Account
@@ -113,13 +118,13 @@ public class TransactionController(IConfiguration config, ITransactionRepository
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return Unauthorized("Invalid Token!");
 
-        var userDb = await transactionRepository.GetUserByIdAsync(userId);
+        var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
         if (userDb.Account.Balance < transactionTransferDto.Amount) 
             return BadRequest("Insufficient funds to withdraw given amount!");
         
-        var destinationAccountDb = await transactionRepository.GetAccountByAccountNumberAsync(transactionTransferDto.DestinationAccountNumber);
+        var destinationAccountDb = await accountRepository.GetAccountByAccountNumberAsync(transactionTransferDto.DestinationAccountNumber);
         if (destinationAccountDb is null) return NotFound("Destination Account not found!");
         
         var transaction = _mapper.Map<Transaction>(transactionTransferDto);

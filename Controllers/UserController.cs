@@ -11,7 +11,13 @@ namespace schoolMoney_backend.Controllers;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class UserController(IConfiguration config, IUserRepository userRepository) : ControllerBase
+public class UserController(
+    IConfiguration config, 
+    IUserRepository userRepository, 
+    IChildRepository childRepository, 
+    IAccountRepository accountRepository,
+    IClassRepository classRepository
+    ) : ControllerBase
 {
     private readonly AuthHelper _authHelper = new (config);
     
@@ -47,7 +53,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         
         foreach (var child in userDb.Children)
         {
-            var childDb = await userRepository.GetChildByIdAsync(child.ChildId);
+            var childDb = await childRepository.GetChildByIdAsync(child.ChildId);
             if (childDb is null) return NotFound("Child not found!");
 
             var childDto = new ChildDto
@@ -93,9 +99,9 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
             ClassId = childCreatorDto.ClassId,
         };
 
-        await userRepository.AddEntityAsync(child);
+        await childRepository.AddEntityAsync(child);
         
-        return await userRepository.SaveChangesAsync() ? Ok(child.ChildId) : Problem("Failed to create child profile!");
+        return await childRepository.SaveChangesAsync() ? Ok(child.ChildId) : Problem("Failed to create child profile!");
     }
 
     [HttpGet("GetChildProfile/{childId}")]
@@ -104,7 +110,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return Unauthorized("Invalid Token!");
         
-        var childDb = await userRepository.GetChildByIdAsync(childId);
+        var childDb = await childRepository.GetChildByIdAsync(childId);
         if (childDb is null) return NotFound("Child not found!");
         if (!childDb.ParentId.Equals(userId)) return Unauthorized("You cannot get child profile which you are not owner!");
 
@@ -125,16 +131,16 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return Unauthorized("Invalid Token!");
         
-        var childDb = await userRepository.GetChildByIdAsync(childId);
+        var childDb = await childRepository.GetChildByIdAsync(childId);
         if (childDb is null) return NotFound("Child not found!");
         if (!childDb.ParentId.Equals(userId)) return Unauthorized("You cannot update child profile which you are not owner!");
         
         childDb.Name = childCreatorDto.Name;
         childDb.ClassId = childCreatorDto.ClassId;
 
-        userRepository.UpdateEntity(childDb);
+        childRepository.UpdateEntity(childDb);
         
-        return await userRepository.SaveChangesAsync() ? Ok() : Problem("Failed to update child profile!");
+        return await childRepository.SaveChangesAsync() ? Ok() : Problem("Failed to update child profile!");
     }
 
     [HttpDelete("DeleteChildProfile/{childId}")]
@@ -143,13 +149,13 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return Unauthorized("Invalid Token!");
         
-        var childDb = await userRepository.GetChildByIdAsync(childId);
+        var childDb = await childRepository.GetChildByIdAsync(childId);
         if (childDb is null) return NotFound("Child not found!");
         if (!childDb.ParentId.Equals(userId)) return Unauthorized("You cannot update child profile which you are not owner!");
         
-        userRepository.DeleteEntity(childDb);
+        childRepository.DeleteEntity(childDb);
         
-        return await userRepository.SaveChangesAsync() ? Ok() : Problem("Failed to delete child profile!");
+        return await childRepository.SaveChangesAsync() ? Ok() : Problem("Failed to delete child profile!");
     }
     
     [HttpGet("GetClasses")]
@@ -158,7 +164,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return BadRequest("Invalid Token!");
         
-        var classListDb = await userRepository.GetClassListByTreasurerIdAsync(userId);
+        var classListDb = await classRepository.GetClassListByTreasurerIdAsync(userId);
         
         var classList = _mapper.Map<List<ClassListDto>>(classListDb);
         classList.ForEach(c => c.IsTreasurer = true);
@@ -181,7 +187,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         {
             foreach (var classAsTreasurer in userDb.ClassesAsTreasurer)
             {
-                var classDb = await userRepository.GetClassByIdAsync(classAsTreasurer.ClassId);
+                var classDb = await classRepository.GetClassByIdAsync(classAsTreasurer.ClassId);
                 if (classDb is null) return NotFound("Class not found!");
                 if (classDb.Fundraises is null) continue;
             
@@ -204,7 +210,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         {
             foreach (var child in userDb.Children)
             {
-                var childDb = await userRepository.GetChildByIdAsync(child.ChildId);
+                var childDb = await childRepository.GetChildByIdAsync(child.ChildId);
                 if (childDb is null) return NotFound("Child not found!");
                 if (childDb.Class?.Fundraises is null) continue;
 
@@ -240,7 +246,7 @@ public class UserController(IConfiguration config, IUserRepository userRepositor
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null) return BadRequest("Account number not found!");
         
-        var accountDb = await userRepository.GetAccountByAccountNumberAsync(userDb.AccountNumber);
+        var accountDb = await accountRepository.GetAccountByAccountNumberAsync(userDb.AccountNumber);
         if (accountDb is null) return BadRequest("Account number not found!");
 
         var transactionHistory = new List<TransactionDto>();

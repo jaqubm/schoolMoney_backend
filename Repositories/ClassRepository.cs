@@ -33,14 +33,6 @@ public class ClassRepository(IConfiguration config) : IClassRepository
             _entityFramework.Remove(entity);
     }
 
-    public async Task<User?> GetUserByIdAsync(string userId)
-    {
-        return await _entityFramework
-            .User
-            .Include(u => u.Children)
-            .FirstOrDefaultAsync(u => u.UserId == userId);
-    }
-
     public async Task<Class?> GetClassByIdAsync(string classId)
     {
         return await _entityFramework
@@ -50,6 +42,25 @@ public class ClassRepository(IConfiguration config) : IClassRepository
             .Include(c => c.Fundraises)
             .FirstOrDefaultAsync(c => c.ClassId == classId);
     }
+    
+    public async Task<List<Class>> GetClassListByTreasurerIdAsync(string treasurerId)
+    {
+        return await _entityFramework
+            .Class
+            .Include(c => c.Treasurer)
+            .Where(c => c.TreasurerId == treasurerId)
+            .ToListAsync();
+    }
+    
+    public async Task<List<Class>> GetClassListByNameThatStartsWithAsync(string className)
+    {
+        var queryable = _entityFramework.Class.AsQueryable();
+        
+        if (!string.IsNullOrEmpty(className))
+            queryable = queryable.Where(c => c.Name.Contains(className));
+        
+        return await queryable.Take(10).ToListAsync();
+    }
 
     public async Task<bool> ClassWithGivenSchoolAndClassNameExistsAsync(string schoolName, string className)
     {
@@ -58,15 +69,5 @@ public class ClassRepository(IConfiguration config) : IClassRepository
             .FirstOrDefaultAsync(c => (c.SchoolName == schoolName && c.Name == className));
         
         return classDb is not null;
-    }
-
-    public async Task<List<Class>> SearchClassesByNameAsync(string className)
-    {
-        var queryable = _entityFramework.Class.AsQueryable();
-        
-        if (!string.IsNullOrEmpty(className))
-            queryable = queryable.Where(c => c.Name.Contains(className));
-        
-        return await queryable.Take(10).ToListAsync();
     }
 }

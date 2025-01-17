@@ -26,25 +26,4 @@ public class AuthRepository(IConfiguration config) : IAuthRepository
         if (entity is not null)
             _entityFramework.Update(entity);
     }
-    
-    public async Task<User?> GetUserByIdAsync(string userId)
-    {
-        return await _entityFramework
-            .User
-            .FindAsync(userId);
-    }
-
-    public async Task<User?> GetUserByEmailAsync(string email)
-    {
-        return await _entityFramework
-            .User
-            .FirstOrDefaultAsync(a => a.Email == email);
-    }
-
-    public async Task<bool> CheckUserExistAsync(string email)
-    {
-        return await _entityFramework
-            .User
-            .FirstOrDefaultAsync(a => a.Email == email) is not null;
-    }
 }
