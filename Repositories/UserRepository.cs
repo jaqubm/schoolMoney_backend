@@ -49,6 +49,14 @@ public class UserRepository(IConfiguration config) : IUserRepository
             .User
             .FirstOrDefaultAsync(a => a.Email == email);
     }
+
+    public async Task<User?> GetUserWithAccountByIdAsync(string userId)
+    {
+        return await _entityFramework
+            .User
+            .Include(u => u.Account)
+            .FirstOrDefaultAsync(u => u.UserId == userId);
+    }
     
     public async Task<bool> UserWithGivenEmailExistsAsync(string email)
     {

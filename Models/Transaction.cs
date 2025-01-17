@@ -8,6 +8,10 @@ public class Transaction
     [Key]
     [MaxLength(50)]
     public string TransactionId { get; set; }
+    
+    [Required]
+    [MaxLength(50)]
+    public string Title { get; set; }
 
     [Required]
     public decimal Amount { get; set; }

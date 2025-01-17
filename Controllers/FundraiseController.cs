@@ -124,21 +124,24 @@ public class FundraiseController(
         if (fundraiseDb.Account is null) return NotFound("Account of fundraise not found!");
         if (!(fundraiseDb.Class.TreasurerId.Equals(userId))) return Unauthorized("Only treasurers can withdraw money from fundraise!");
         
-        var userDb = await userRepository.GetUserByIdAsync(userId);
+        var userDb = await userRepository.GetUserWithAccountByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
         
         amount = amount.Equals(decimal.Zero) ? fundraiseDb.Account.Balance : amount;
 
+        if (fundraiseDb.Account.Balance < amount) return Conflict("Unsufficient fundraise account balance!");
+
         var transaction = new Transaction
         {
-            Type = "Withdraw",
+            Title = "Internal Transfer",
             Amount = amount,
+            Type = "Withdraw",
             SourceAccountNumber = fundraiseDb.Account.AccountNumber,
             DestinationAccountNumber = userDb.AccountNumber,
         };
         
-        await transactionRepository.AddEntityAsync(transaction);
+        await fundraiseRepository.AddEntityAsync(transaction);
         
         userDb.Account.Balance += amount;
         fundraiseDb.Account.Balance -= amount;
@@ -186,27 +189,29 @@ public class FundraiseController(
         var transactions = new List<TransactionDto>();
 
         if (account.SourceTransactions is not null)
-            transactions.AddRange(account.SourceTransactions.Select(t => new TransactionDto
+            transactions.AddRange(account.SourceTransactions.Select(ts => new TransactionDto
             {
-                TransactionId = t.TransactionId,
-                Amount = t.Amount,
-                Date = t.Date,
-                Type = t.Type,
-                Status = t.Status,
-                SourceAccountNumber = t.SourceAccountNumber,
-                DestinationAccountNumber = t.DestinationAccountNumber
+                TransactionId = ts.TransactionId,
+                Title = ts.Title,
+                Amount = ts.Amount,
+                Date = ts.Date,
+                Type = ts.Type,
+                Status = ts.Status,
+                SourceAccountNumber = ts.SourceAccountNumber,
+                DestinationAccountNumber = ts.DestinationAccountNumber
             }));
 
         if (account.DestinationTransactions is not null)
-            transactions.AddRange(account.DestinationTransactions.Select(t => new TransactionDto
+            transactions.AddRange(account.DestinationTransactions.Select(td => new TransactionDto
             {
-                TransactionId = t.TransactionId,
-                Amount = t.Amount,
-                Date = t.Date,
-                Type = t.Type,
-                Status = t.Status,
-                SourceAccountNumber = t.SourceAccountNumber,
-                DestinationAccountNumber = t.DestinationAccountNumber
+                TransactionId = td.TransactionId,
+                Title = td.Title,
+                Amount = td.Amount,
+                Date = td.Date,
+                Type = td.Type,
+                Status = td.Status,
+                SourceAccountNumber = td.SourceAccountNumber,
+                DestinationAccountNumber = td.DestinationAccountNumber
             }));
 
         transactions = transactions.OrderByDescending(t => t.Date).ToList();
