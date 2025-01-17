@@ -52,6 +52,7 @@ public class TransactionController(
         var transaction = new Transaction
         {
             Type = "Withdraw",
+            Amount = transactionWithdrawDto.Amount,
             SourceAccountNumber = userDb.AccountNumber,
             DestinationAccountNumber = transactionWithdrawDto.DestinationAccountNumber
         };
@@ -96,6 +97,7 @@ public class TransactionController(
         var transaction = new Transaction
         {
             Type = "Deposit",
+            Amount = transactionDepositDto.Amount,
             SourceAccountNumber = transactionDepositDto.SourceAccountNumber,
             DestinationAccountNumber = userDb.AccountNumber
         };
@@ -127,6 +129,7 @@ public class TransactionController(
         var transaction = new Transaction
         {
             Type = "Transfer",
+            Amount = transactionTransferDto.Amount,
             SourceAccountNumber = userDb.AccountNumber,
             DestinationAccountNumber = transactionTransferDto.DestinationAccountNumber
         };
