@@ -33,33 +33,6 @@ public class FundraiseRepository(IConfiguration config) : IFundraiseRepository
             _entityFramework.Remove(entity);
     }
 
-    public async Task<User?> GetUserByIdAsync(string userId)
-    {
-        return await _entityFramework
-            .User
-            .Include(u => u.Children)
-            .FirstOrDefaultAsync(u => u.UserId == userId);
-    }
-
-    public async Task<Class?> GetClassByIdAsync(string classId)
-    {
-        return await _entityFramework
-            .Class
-            .Include(c => c.Treasurer)
-            .Include(c => c.Children)
-            .Include(c => c.Fundraises)
-            .FirstOrDefaultAsync(c => c.ClassId == classId);
-    }
-    
-    public async Task<Account?> GetAccountByAccountNumberAsync(string accountNumber)
-    {
-        return await _entityFramework
-            .Account
-            .Include(a => a.SourceTransactions)
-            .Include(a => a.DestinationTransactions)
-            .FirstOrDefaultAsync(a => a.AccountNumber == accountNumber);
-    }
-
     public async Task<Fundraise?> GetFundraiseByIdAsync(string fundraiseId)
     {
         return await _entityFramework

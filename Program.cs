@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using schoolMoney_backend.Data;
 using schoolMoney_backend.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,7 +66,9 @@ builder.Services.AddCors(options =>
 
 // Adding scoped connection between Repositories Interfaces and Repositories Classes
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IChildRepository, ChildRepository>();
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IFundraiseRepository, FundraiseRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();

@@ -42,39 +42,18 @@ public class UserRepository(IConfiguration config) : IUserRepository
             .Include(u => u.ClassesAsTreasurer)
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
-
-    public async Task<Child?> GetChildByIdAsync(string childId)
+    
+    public async Task<User?> GetUserByEmailAsync(string email)
     {
         return await _entityFramework
-            .Child
-            .Include(c => c.Class)
-            .ThenInclude(c => c.Fundraises)
-            .FirstOrDefaultAsync(c => c.ChildId == childId);
+            .User
+            .FirstOrDefaultAsync(a => a.Email == email);
     }
-
-    public async Task<Account?> GetAccountByAccountNumberAsync(string accountNumber)
+    
+    public async Task<bool> UserWithGivenEmailExistsAsync(string email)
     {
         return await _entityFramework
-            .Account
-            .Include(a => a.SourceTransactions)
-            .Include(a => a.DestinationTransactions)
-            .FirstOrDefaultAsync(a => a.AccountNumber == accountNumber);
-    }
-
-    public async Task<Class?> GetClassByIdAsync(string classId)
-    {
-        return await _entityFramework
-            .Class
-            .Include(c => c.Fundraises)
-            .FirstOrDefaultAsync(c => c.ClassId == classId);
-    }
-
-    public async Task<List<Class>> GetClassListByTreasurerIdAsync(string treasurerId)
-    {
-        return await _entityFramework
-            .Class
-            .Include(c => c.Treasurer)
-            .Where(c => c.TreasurerId == treasurerId)
-            .ToListAsync();
+            .User
+            .FirstOrDefaultAsync(a => a.Email == email) is not null;
     }
 }

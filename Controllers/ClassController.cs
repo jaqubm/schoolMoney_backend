@@ -11,7 +11,11 @@ namespace schoolMoney_backend.Controllers;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class ClassController(IConfiguration config, IClassRepository classRepository) : ControllerBase
+public class ClassController(
+    IConfiguration config, 
+    IClassRepository classRepository,
+    IUserRepository userRepository
+    ) : ControllerBase
 {
     private readonly AuthHelper _authHelper = new (config);
     
@@ -60,7 +64,7 @@ public class ClassController(IConfiguration config, IClassRepository classReposi
 
         foreach (var child in classDto.Children)
         {
-            var parentDb = await classRepository.GetUserByIdAsync(child.ParentId);
+            var parentDb = await userRepository.GetUserByIdAsync(child.ParentId);
             
             if (parentDb is null) continue;
             
@@ -77,8 +81,9 @@ public class ClassController(IConfiguration config, IClassRepository classReposi
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return BadRequest("Invalid Token!");
         
-        var classListDb = await classRepository.SearchClassesByNameAsync(className);
+        var classListDb = await classRepository.GetClassListByNameThatStartsWithAsync(className);
         var classList = _mapper.Map<List<ClassListDto>>(classListDb);
+        
         classList.ForEach(c =>
         {
             c.IsTreasurer =

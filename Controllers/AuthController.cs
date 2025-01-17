@@ -11,7 +11,11 @@ namespace schoolMoney_backend.Controllers;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class AuthController(IConfiguration config, IAuthRepository authRepository) : ControllerBase
+public class AuthController(
+    IConfiguration config, 
+    IAuthRepository authRepository,
+    IUserRepository userRepository
+    ) : ControllerBase
 {
     private readonly AuthHelper _authHelper = new (config);
 
@@ -22,7 +26,7 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
         if (userRegisterDto.Password != userRegisterDto.PasswordConfirm)
             return BadRequest("Passwords do not match!");
         
-        if (await authRepository.CheckUserExistAsync(userRegisterDto.Email))
+        if (await userRepository.UserWithGivenEmailExistsAsync(userRegisterDto.Email))
             return BadRequest("User with this email already exists!");
         
         var passwordSalt = new byte[128 / 8];
@@ -52,7 +56,7 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
     [HttpPost("Login")]
     public async Task<ActionResult<string>> Login(UserLoginDto userLoginDto)
     {
-        var userDb = await authRepository.GetUserByEmailAsync(userLoginDto.Email);
+        var userDb = await userRepository.GetUserByEmailAsync(userLoginDto.Email);
         if (userDb is null) return NotFound("User not found!");
 
         var passwordHash = _authHelper.GetPasswordHash(userLoginDto.Password, userDb.PasswordSalt);
@@ -68,7 +72,7 @@ public class AuthController(IConfiguration config, IAuthRepository authRepositor
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return Unauthorized("Invalid Token!");
         
-        var userDb = await authRepository.GetUserByIdAsync(userId);
+        var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
         
         if (userPasswordUpdateDto.NewPassword != userPasswordUpdateDto.NewPasswordConfirm)
