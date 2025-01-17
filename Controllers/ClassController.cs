@@ -28,6 +28,9 @@ public class ClassController(IConfiguration config, IClassRepository classReposi
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return Unauthorized("Invalid Token!");
+        
+        var classWithGivenSchoolAndClassNameExists = await classRepository.ClassWithGivenSchoolAndClassNameExistsAsync(classCreatorDto.SchoolName, classCreatorDto.Name);
+        if (classWithGivenSchoolAndClassNameExists) return Conflict("Class with given name in this school already exists!");
 
         var newClass = new Class
         {

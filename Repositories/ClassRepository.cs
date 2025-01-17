@@ -51,6 +51,15 @@ public class ClassRepository(IConfiguration config) : IClassRepository
             .FirstOrDefaultAsync(c => c.ClassId == classId);
     }
 
+    public async Task<bool> ClassWithGivenSchoolAndClassNameExistsAsync(string schoolName, string className)
+    {
+        var classDb = await _entityFramework
+            .Class
+            .FirstOrDefaultAsync(c => (c.SchoolName == schoolName && c.Name == className));
+        
+        return classDb is not null;
+    }
+
     public async Task<List<Class>> SearchClassesByNameAsync(string className)
     {
         var queryable = _entityFramework.Class.AsQueryable();
