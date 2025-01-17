@@ -24,10 +24,10 @@ public class AuthController(
     public async Task<ActionResult<string>> Register(UserRegisterDto userRegisterDto)
     {
         if (userRegisterDto.Password != userRegisterDto.PasswordConfirm)
-            return BadRequest("Passwords do not match!");
+            return Conflict("Passwords do not match!");
         
         if (await userRepository.UserWithGivenEmailExistsAsync(userRegisterDto.Email))
-            return BadRequest("User with this email already exists!");
+            return Conflict("User with this email already exists!");
         
         var passwordSalt = new byte[128 / 8];
         
@@ -62,7 +62,7 @@ public class AuthController(
         var passwordHash = _authHelper.GetPasswordHash(userLoginDto.Password, userDb.PasswordSalt);
 
         return passwordHash.Where((t, i) => t != userDb.PasswordHash[i]).Any() 
-            ? BadRequest("Wrong Password!")
+            ? Unauthorized("Wrong Password!")
             : Ok(new Dictionary<string, string> { { "Token", _authHelper.CreateToken(userDb.UserId, userDb.Email) } });
     }
 
@@ -76,12 +76,12 @@ public class AuthController(
         if (userDb is null) return NotFound("User not found!");
         
         if (userPasswordUpdateDto.NewPassword != userPasswordUpdateDto.NewPasswordConfirm)
-            return BadRequest("New password does not match password confirm!");
+            return Conflict("New password does not match password confirm!");
         
         var oldPasswordHash = _authHelper.GetPasswordHash(userPasswordUpdateDto.OldPassword, userDb.PasswordSalt);
         
         if (oldPasswordHash.Where((t, i) => t != userDb.PasswordHash[i]).Any()) 
-            return BadRequest("Wrong password!");
+            return Unauthorized("Wrong password!");
         
         var newPasswordSalt = new byte[128 / 8];
         

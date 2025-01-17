@@ -52,7 +52,7 @@ public class ClassController(
     public async Task<ActionResult<ClassDto>> GetClass([FromRoute] string classId)
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
-        if (userId is null) return BadRequest("Invalid Token!");
+        if (userId is null) return Unauthorized("Invalid Token!");
         
         var classDb = await classRepository.GetClassByIdAsync(classId);
         if (classDb is null) return NotFound("Class not found!");
@@ -79,7 +79,7 @@ public class ClassController(
     public async Task<ActionResult<List<ClassListDto>>> GetClasses([FromRoute] string className)
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
-        if (userId is null) return BadRequest("Invalid Token!");
+        if (userId is null) return Unauthorized("Invalid Token!");
         
         var classListDb = await classRepository.GetClassListByNameThatStartsWithAsync(className);
         var classList = _mapper.Map<List<ClassListDto>>(classListDb);
@@ -99,12 +99,11 @@ public class ClassController(
     public async Task<ActionResult<string>> UpdateClass([FromRoute] string classId, [FromBody] ClassCreatorDto classCreatorDto)
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
-        if (userId is null) return BadRequest("Invalid Token!");
+        if (userId is null) return Unauthorized("Invalid Token!");
         
         var classDb = await classRepository.GetClassByIdAsync(classId);
         if (classDb is null) return NotFound("Class not found!");
-        if (!classDb.TreasurerId.Equals(userId)) 
-            return Unauthorized("You don't have permission to update this class!");
+        if (!classDb.TreasurerId.Equals(userId)) return Unauthorized("You don't have permission to update this class!");
         
         classDb.Name = classCreatorDto.Name;
         classDb.SchoolName = classCreatorDto.SchoolName;
@@ -118,12 +117,11 @@ public class ClassController(
     public async Task<ActionResult<string>> DeleteClass([FromRoute] string classId)
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
-        if (userId is null) return BadRequest("Invalid Token!");
+        if (userId is null) return Unauthorized("Invalid Token!");
         
         var classDb = await classRepository.GetClassByIdAsync(classId);
         if (classDb is null) return NotFound("Class not found!");
-        if (!classDb.TreasurerId.Equals(userId)) 
-            return Unauthorized("You don't have permission to delete this class!");
+        if (!classDb.TreasurerId.Equals(userId)) return Unauthorized("You don't have permission to delete this class!");
         
         classRepository.DeleteEntity(classDb);
         
