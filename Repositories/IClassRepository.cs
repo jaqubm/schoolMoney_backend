@@ -13,5 +13,6 @@ public interface IClassRepository
     public Task<User?> GetUserByIdAsync(string userId);
     
     public Task<Class?> GetClassByIdAsync(string classId);
+    public Task<bool> ClassWithGivenSchoolAndClassNameExistsAsync(string schoolName, string className);
     public Task<List<Class>> SearchClassesByNameAsync(string className);
 }
