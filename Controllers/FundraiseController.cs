@@ -1,4 +1,3 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using schoolMoney_backend.Dtos;
@@ -21,11 +20,6 @@ public class FundraiseController(
     ) : ControllerBase
 {
     private readonly AuthHelper _authHelper = new (config);
-    
-    private readonly Mapper _mapper = new(new MapperConfiguration(c =>
-    {
-        c.CreateMap<Fundraise, FundraiseDto>();
-    }));
 
     [HttpPost("Create")]
     public async Task<ActionResult<string>> CreateFundraise([FromBody] FundraiseCreatorDto fundraiseCreatorDto)
@@ -65,25 +59,31 @@ public class FundraiseController(
         if (fundraiseDb is null) return NotFound("Fundraise not found!");
         if (fundraiseDb.Class is null) return NotFound("Class of fundraise not found!");
         if (fundraiseDb.Account is null) return NotFound("Account of fundraise not found!");
-        
-        var fundraise = _mapper.Map<Fundraise, FundraiseDto>(fundraiseDb);
-        
-        fundraise.RaisedAmount = fundraiseDb.Account.Balance;
-        
-        if (fundraiseDb.Account.DestinationTransactions is not null)
+
+        var fundraise = new FundraiseDto
         {
-            fundraise.TotalSupporters = fundraiseDb
-                .Account
-                .DestinationTransactions
-                .Where(t => t.DestinationAccountNumber == fundraiseDb.Account.AccountNumber)
-                .Select(t => t.SourceAccountNumber)
-                .Distinct()
-                .Count();
-        }
-        
-        fundraise.ClassName = fundraiseDb.Class.Name;
-        fundraise.SchoolName = fundraiseDb.Class.SchoolName;
-        fundraise.IsTreasurer = fundraiseDb.Class.TreasurerId.Equals(userId);
+            Title = fundraiseDb.Title,
+            Description = fundraiseDb.Description,
+            ImageIndex = fundraiseDb.ImageIndex,
+            GoalAmount = fundraiseDb.GoalAmount,
+            RaisedAmount = fundraiseDb.Account.Balance,
+            TotalSupporters = fundraiseDb.Account.DestinationTransactions is null 
+                ? 0 
+                : fundraiseDb
+                    .Account
+                    .DestinationTransactions
+                    .Where(t => t.DestinationAccountNumber == fundraiseDb.Account.AccountNumber)
+                    .Select(t => t.SourceAccountNumber)
+                    .Distinct()
+                    .Count(),
+            StartDate = fundraiseDb.StartDate,
+            EndDate = fundraiseDb.EndDate,
+            AccountNumber = fundraiseDb.AccountNumber,
+            ClassId = fundraiseDb.ClassId,
+            ClassName = fundraiseDb.Class.Name,
+            SchoolName = fundraiseDb.Class.SchoolName,
+            IsTreasurer = fundraiseDb.Class.TreasurerId.Equals(userId)
+        };
 
         return Ok(fundraise);
     }

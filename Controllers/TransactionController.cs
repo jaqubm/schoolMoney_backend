@@ -1,4 +1,3 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using schoolMoney_backend.Dtos;
@@ -19,14 +18,6 @@ public class TransactionController(
     ) : ControllerBase
 {
     private readonly AuthHelper _authHelper = new (config);
-    
-    private readonly Mapper _mapper = new(new MapperConfiguration(c =>
-    {
-        c.CreateMap<TransactionWithdrawDto, Transaction>();
-        c.CreateMap<TransactionDepositDto, Transaction>();
-        c.CreateMap<TransactionTransferDto, Transaction>();
-        c.CreateMap<Transaction, TransactionDto>();
-    }));
     
     [HttpPost("Withdraw")]
     public async Task<ActionResult<string>> CreateWithdrawTransaction([FromBody] TransactionWithdrawDto transactionWithdrawDto)
@@ -57,10 +48,13 @@ public class TransactionController(
                 });
             }
         }
-        
-        var transaction = _mapper.Map<Transaction>(transactionWithdrawDto);
-        transaction.SourceAccountNumber = userDb.AccountNumber;
-        transaction.Type = "Withdraw";
+
+        var transaction = new Transaction
+        {
+            Type = "Withdraw",
+            SourceAccountNumber = userDb.AccountNumber,
+            DestinationAccountNumber = transactionWithdrawDto.DestinationAccountNumber
+        };
         
         await transactionRepository.AddEntityAsync(transaction);
         
@@ -99,9 +93,12 @@ public class TransactionController(
             }
         }
         
-        var transaction = _mapper.Map<Transaction>(transactionDepositDto);
-        transaction.DestinationAccountNumber = userDb.AccountNumber;
-        transaction.Type = "Deposit";
+        var transaction = new Transaction
+        {
+            Type = "Deposit",
+            SourceAccountNumber = transactionDepositDto.SourceAccountNumber,
+            DestinationAccountNumber = userDb.AccountNumber
+        };
         
         await transactionRepository.AddEntityAsync(transaction);
         
@@ -127,9 +124,12 @@ public class TransactionController(
         var destinationAccountDb = await accountRepository.GetAccountByAccountNumberAsync(transactionTransferDto.DestinationAccountNumber);
         if (destinationAccountDb is null) return NotFound("Destination Account not found!");
         
-        var transaction = _mapper.Map<Transaction>(transactionTransferDto);
-        transaction.SourceAccountNumber = userDb.AccountNumber;
-        transaction.Type = "Transfer";
+        var transaction = new Transaction
+        {
+            Type = "Transfer",
+            SourceAccountNumber = userDb.AccountNumber,
+            DestinationAccountNumber = transactionTransferDto.DestinationAccountNumber
+        };
         
         await transactionRepository.AddEntityAsync(transaction);
         
@@ -147,7 +147,18 @@ public class TransactionController(
     {
         var transactionDb = await transactionRepository.GetTransactionByIdAsync(transactionId);
         if (transactionDb is null) return NotFound();
+
+        var transaction = new TransactionDto
+        {
+            TransactionId = transactionDb.TransactionId,
+            Amount = transactionDb.Amount,
+            Date = transactionDb.Date,
+            Type = transactionDb.Type,
+            Status = transactionDb.Status,
+            SourceAccountNumber = transactionDb.SourceAccountNumber,
+            DestinationAccountNumber = transactionDb.DestinationAccountNumber
+        };
         
-        return Ok(_mapper.Map<TransactionDto>(transactionDb));
+        return Ok(transaction);
     }
 }

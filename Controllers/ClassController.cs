@@ -13,18 +13,14 @@ namespace schoolMoney_backend.Controllers;
 [Route("[controller]")]
 public class ClassController(
     IConfiguration config, 
-    IClassRepository classRepository,
-    IUserRepository userRepository
+    IClassRepository classRepository
     ) : ControllerBase
 {
     private readonly AuthHelper _authHelper = new (config);
     
     private readonly Mapper _mapper = new(new MapperConfiguration(c =>
     {
-        c.CreateMap<Class, ClassDto>();
         c.CreateMap<Class, ClassListDto>();
-        c.CreateMap<User, UserInClassDto>();
-        c.CreateMap<Child, ChildInClassDto>();
     }));
 
     [HttpPost("Create")]
@@ -56,21 +52,35 @@ public class ClassController(
         
         var classDb = await classRepository.GetClassByIdAsync(classId);
         if (classDb is null) return NotFound("Class not found!");
+        if (classDb.Treasurer is null) return NotFound("Treasurer of the class not found!");
         if (!classDb.TreasurerId.Equals(userId) && (classDb.Children is not null && classDb.Children.Any(c => c.ParentId.Equals(userId))))
             return Unauthorized("You don't have permission to view this class!");
-        
-        var classDto = _mapper.Map<ClassDto>(classDb);
-        classDto.IsTreasurer = classDb.TreasurerId.Equals(userId);
 
-        foreach (var child in classDto.Children)
+        var classDto = new ClassDto
         {
-            var parentDb = await userRepository.GetUserByIdAsync(child.ParentId);
-            
-            if (parentDb is null) continue;
-            
-            child.ParentName = parentDb.Name;
-            child.ParentSurname = parentDb.Surname;
-        }
+            Name = classDb.Name,
+            SchoolName = classDb.SchoolName,
+            IsTreasurer = classDb.TreasurerId.Equals(userId),
+            Treasurer = new UserInClassDto
+            {
+                Email = classDb.Treasurer.Email,
+                Name = classDb.Treasurer.Name,
+                Surname = classDb.Treasurer.Surname
+            },
+            Children = classDb.Children?.Select<Child, ChildInClassDto>(child =>
+            {
+                var childInClassDto = new ChildInClassDto
+                {
+                    ChildId = child.ChildId,
+                    Name = child.Name,
+                    ParentId = child.ParentId,
+                    ParentName = child.Parent?.Name,
+                    ParentSurname = child.Parent?.Surname
+                };
+
+                return childInClassDto;
+            })
+        };
         
         return Ok(classDto);
     }
