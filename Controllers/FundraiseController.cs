@@ -35,7 +35,7 @@ public class FundraiseController(
         
         var classDb = await classRepository.GetClassByIdAsync(fundraiseCreatorDto.ClassId);
         if (classDb is null) return NotFound("Class not found!");
-        if (!classDb.TreasurerId.Equals(userId)) return BadRequest("Only treasurers can create fundraise!");
+        if (!classDb.TreasurerId.Equals(userId)) return Unauthorized("Only treasurers can create fundraise!");
         
         var fundraiseAccount = new Account();
         var fundraise = new Fundraise
@@ -59,7 +59,7 @@ public class FundraiseController(
     public async Task<ActionResult<FundraiseDto>> GetFundraise([FromRoute] string fundraiseId)
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
-        if (userId is null) return BadRequest("Invalid Token!");
+        if (userId is null) return Unauthorized("Invalid Token!");
         
         var fundraiseDb = await fundraiseRepository.GetFundraiseByIdAsync(fundraiseId);
         if (fundraiseDb is null) return NotFound("Fundraise not found!");
@@ -116,7 +116,7 @@ public class FundraiseController(
     public async Task<ActionResult<string>> WithdrawFundraiseMoney([FromRoute] string fundraiseId, [FromBody] decimal amount)
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
-        if (userId is null) return BadRequest("Invalid Token!");
+        if (userId is null) return Unauthorized("Invalid Token!");
         
         var fundraiseDb = await fundraiseRepository.GetFundraiseByIdAsync(fundraiseId);
         if (fundraiseDb is null) return NotFound("Fundraise not found!");
@@ -153,14 +153,14 @@ public class FundraiseController(
     public async Task<ActionResult<string>> DeleteFundraise([FromRoute] string fundraiseId)
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
-        if (userId is null) return BadRequest("Invalid Token!");
+        if (userId is null) return Unauthorized("Invalid Token!");
         
         var fundraiseDb = await fundraiseRepository.GetFundraiseByIdAsync(fundraiseId);
         if (fundraiseDb is null) return NotFound("Fundraise not found!");
         if (fundraiseDb.Class is null) return NotFound("Class of fundraise not found!");
         if (fundraiseDb.Account is null) return NotFound("Account of fundraise not found!");
         if (fundraiseDb.Account.Balance > decimal.Zero) 
-            return BadRequest("You need to withdraw money from the fundraise in order to delete it!");
+            return Conflict("You need to withdraw money from the fundraise in order to delete it!");
         if (!(fundraiseDb.Class.TreasurerId.Equals(userId))) return Unauthorized("Only treasurers can delete fundraise!");
         
         fundraiseRepository.DeleteEntity(fundraiseDb);

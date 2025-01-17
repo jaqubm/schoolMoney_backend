@@ -38,7 +38,7 @@ public class TransactionController(
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
         if (userDb.Account.Balance < transactionWithdrawDto.Amount) 
-            return BadRequest("Insufficient funds to withdraw given amount!");
+            return Conflict("Insufficient funds to withdraw given amount!");
 
         if (transactionWithdrawDto.DestinationAccountNumber is null or "")
         {
@@ -122,7 +122,7 @@ public class TransactionController(
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
         if (userDb.Account.Balance < transactionTransferDto.Amount) 
-            return BadRequest("Insufficient funds to withdraw given amount!");
+            return Conflict("Insufficient funds to withdraw given amount!");
         
         var destinationAccountDb = await accountRepository.GetAccountByAccountNumberAsync(transactionTransferDto.DestinationAccountNumber);
         if (destinationAccountDb is null) return NotFound("Destination Account not found!");

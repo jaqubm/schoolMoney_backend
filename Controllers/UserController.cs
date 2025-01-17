@@ -162,7 +162,7 @@ public class UserController(
     public async Task<ActionResult<List<ClassListDto>>> GetClasses()
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
-        if (userId is null) return BadRequest("Invalid Token!");
+        if (userId is null) return Unauthorized("Invalid Token!");
         
         var classListDb = await classRepository.GetClassListByTreasurerIdAsync(userId);
         
@@ -176,7 +176,7 @@ public class UserController(
     public async Task<ActionResult<List<FundraiseListDto>>> GetFundraises()
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
-        if (userId is null) return BadRequest("Invalid Token!");
+        if (userId is null) return Unauthorized("Invalid Token!");
         
         var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
@@ -244,10 +244,10 @@ public class UserController(
         
         var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
-        if (userDb.AccountNumber is null) return BadRequest("Account number not found!");
+        if (userDb.AccountNumber is null) return NotFound("Account number not found!");
         
         var accountDb = await accountRepository.GetAccountByAccountNumberAsync(userDb.AccountNumber);
-        if (accountDb is null) return BadRequest("Account number not found!");
+        if (accountDb is null) return NotFound("Account number not found!");
 
         var transactionHistory = new List<TransactionDto>();
         
