@@ -23,12 +23,8 @@ public class UserController(
     
     private readonly Mapper _mapper = new(new MapperConfiguration(c =>
     {
-        c.CreateMap<Account, AccountDto>();
-        c.CreateMap<UserUpdateDto, User>();
         c.CreateMap<Class, ClassListDto>();
-        c.CreateMap<User, UserInClassDto>();
         c.CreateMap<Fundraise, FundraiseListDto>();
-        c.CreateMap<Transaction, TransactionDto>();
     }));
     
     [HttpGet("Get")]
@@ -39,6 +35,7 @@ public class UserController(
         
         var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
+        if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
 
         var userDto = new UserDto
         {
@@ -46,7 +43,11 @@ public class UserController(
             Name = userDb.Name,
             Surname = userDb.Surname,
             CreatedAt = userDb.CreatedAt,
-            Account = _mapper.Map<AccountDto>(userDb.Account)
+            Account = new AccountDto
+            {
+                AccountNumber = userDb.AccountNumber,
+                Balance = userDb.Account.Balance
+            }
         };
 
         if (userDb.Children is null) return Ok(userDto);
@@ -78,8 +79,10 @@ public class UserController(
         
         var userDb = await userRepository.GetUserByIdAsync(userId);
         if (userDb is null) return NotFound("User not found!");
-        
-        _mapper.Map(userUpdateDto, userDb);
+
+        userDb.Email = userUpdateDto.Email;
+        userDb.Name = userUpdateDto.Name;
+        userDb.Surname = userUpdateDto.Surname;
         
         userRepository.UpdateEntity(userDb);
         
@@ -253,11 +256,27 @@ public class UserController(
         
         if (accountDb.SourceTransactions is not null)
             transactionHistory.AddRange(accountDb.SourceTransactions
-                .Select(st => _mapper.Map<TransactionDto>(st)));
+                .Select(st => new TransactionDto
+                {
+                    TransactionId = st.TransactionId,
+                    Amount = st.Amount,
+                    Date = st.Date,
+                    Type = st.Type,
+                    Status = st.Status,
+                    SourceAccountNumber = st.SourceAccountNumber,
+                    DestinationAccountNumber = st.DestinationAccountNumber
+                }));
         
         if (accountDb.DestinationTransactions is not null)
             transactionHistory.AddRange(accountDb.DestinationTransactions
-                .Select(dt => _mapper.Map<TransactionDto>(dt)));
+                .Select(dt => new TransactionDto
+                {
+                    TransactionId = dt.TransactionId,
+                    Amount = dt.Amount,
+                    Date = dt.Date,
+                    Type = dt.Type,
+                    Status = dt.Status,
+                }));
         
         return Ok(transactionHistory);
     }
