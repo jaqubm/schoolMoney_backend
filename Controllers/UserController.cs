@@ -259,6 +259,7 @@ public class UserController(
                 .Select(st => new TransactionDto
                 {
                     TransactionId = st.TransactionId,
+                    Title = st.Title,
                     Amount = st.Amount,
                     Date = st.Date,
                     Type = st.Type,
@@ -272,10 +273,13 @@ public class UserController(
                 .Select(dt => new TransactionDto
                 {
                     TransactionId = dt.TransactionId,
+                    Title = dt.Title,
                     Amount = dt.Amount,
                     Date = dt.Date,
                     Type = dt.Type,
                     Status = dt.Status,
+                    SourceAccountNumber = dt.SourceAccountNumber,
+                    DestinationAccountNumber = dt.DestinationAccountNumber
                 }));
         
         return Ok(transactionHistory);
