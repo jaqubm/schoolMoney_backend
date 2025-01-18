@@ -24,6 +24,7 @@ public class UserController(
     private readonly Mapper _mapper = new(new MapperConfiguration(c =>
     {
         c.CreateMap<Class, ClassListDto>();
+        c.CreateMap<User, UserInClassDto>();
         c.CreateMap<Fundraise, FundraiseListDto>();
     }));
     
@@ -170,7 +171,6 @@ public class UserController(
         var classListDb = await classRepository.GetClassListByTreasurerIdAsync(userId);
         
         var classList = _mapper.Map<List<ClassListDto>>(classListDb);
-        classList.ForEach(c => c.IsTreasurer = true);
         
         return Ok(classList);
     }
