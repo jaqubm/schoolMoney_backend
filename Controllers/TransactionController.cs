@@ -157,6 +157,7 @@ public class TransactionController(
         var transaction = new TransactionDto
         {
             TransactionId = transactionDb.TransactionId,
+            Title = transactionDb.Title,
             Amount = transactionDb.Amount,
             Date = transactionDb.Date,
             Type = transactionDb.Type,
