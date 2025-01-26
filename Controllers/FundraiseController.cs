@@ -113,7 +113,7 @@ public class FundraiseController(
     }
 
     [HttpPut("Withdraw/{fundraiseId}")]
-    public async Task<ActionResult<string>> WithdrawFundraiseMoney([FromRoute] string fundraiseId, [FromBody] decimal amount)
+    public async Task<ActionResult<string>> WithdrawFundraiseMoney([FromRoute] string fundraiseId, [FromBody] FundraiseWithdrawDto fundraiseWithdrawDto)
     {
         var userId = await _authHelper.GetUserIdFromToken(HttpContext);
         if (userId is null) return Unauthorized("Invalid Token!");
@@ -128,7 +128,7 @@ public class FundraiseController(
         if (userDb is null) return NotFound("User not found!");
         if (userDb.AccountNumber is null || userDb.Account is null) return NotFound("Account not found!");
         
-        amount = amount.Equals(decimal.Zero) ? fundraiseDb.Account.Balance : amount;
+        var amount = fundraiseWithdrawDto.Amount.Equals(decimal.Zero) ? fundraiseDb.Account.Balance : fundraiseWithdrawDto.Amount;
 
         if (fundraiseDb.Account.Balance < amount) return Conflict("Unsufficient fundraise account balance!");
 
