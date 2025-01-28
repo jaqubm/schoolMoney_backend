@@ -60,6 +60,7 @@ CREATE TABLE schoolMoney.[Fundraise] (
 -- Transactions table
 CREATE TABLE schoolMoney.[Transaction] (
     TransactionId NVARCHAR(50) PRIMARY KEY,
+    Title NVARCHAR(50) NOT NULL,
     Amount DECIMAL(18, 2) NOT NULL,
     Date DATETIME NOT NULL DEFAULT GETDATE(),
     Type NVARCHAR(50) NOT NULL,
