@@ -114,6 +114,9 @@ public class ClassController(
         var classDb = await classRepository.GetClassByIdAsync(classId);
         if (classDb is null) return NotFound("Class not found!");
         if (!classDb.TreasurerId.Equals(userId)) return Unauthorized("You don't have permission to update this class!");
+
+        var classWithGivenSchoolAndClassNameExists = await classRepository.ClassWithGivenSchoolAndClassNameExistsAsync(classCreatorDto.SchoolName, classCreatorDto.Name);
+        if (classWithGivenSchoolAndClassNameExists) return Conflict("Class with given name in this school already exists!");
         
         classDb.Name = classCreatorDto.Name;
         classDb.SchoolName = classCreatorDto.SchoolName;
